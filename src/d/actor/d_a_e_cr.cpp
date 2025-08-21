@@ -3,10 +3,10 @@
  * 
 */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_cr.h"
 #include "d/d_cc_d.h"
-
-UNK_REL_DATA;
 #include "f_op/f_op_actor_enemy.h"
 
 enum daE_CR_ACTION {

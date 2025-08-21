@@ -1,12 +1,11 @@
 /**
- * @file d_a_obj_carry.cpp
+ * @file d_a_e_fz.cpp
  * @brief Enemy - Mini Freezard
- * 
- * @details This should match in theory??
  */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_fz.h"
-UNK_REL_DATA
 #include "f_op/f_op_actor_enemy.h"
 #include "d/actor/d_a_mirror.h"
 #include "d/actor/d_a_b_yo.h"

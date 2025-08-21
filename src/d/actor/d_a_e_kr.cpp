@@ -3,14 +3,13 @@
  *
  */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_kr.h"
 #include "d/actor/d_a_horse.h"
 #include "d/d_bomb.h"
 #include "d/d_cc_d.h"
 #include "d/d_cc_uty.h"
-
-UNK_REL_DATA;
-
 #include "f_op/f_op_actor_enemy.h"
 
 /* 80705FF4-80706070 000014 007C+00 9/9 0/0 0/0 .bss             l_e_krHIO */

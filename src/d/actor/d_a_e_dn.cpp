@@ -3,9 +3,10 @@
  * 
 */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_dn.h"
 #include "d/d_cc_d.h"
-UNK_REL_DATA;
 #include "d/d_bomb.h"
 #include "f_op/f_op_kankyo_mng.h"
 #include "d/actor/d_a_player.h"

@@ -3,6 +3,8 @@
  * Enemy - Keese
  */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_ba.h"
 #include "JSystem/JKernel/JKRHeap.h"
 #include "SSystem/SComponent/c_math.h"
@@ -10,7 +12,6 @@
 #include "d/d_s_play.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_procname.h"
-UNK_REL_DATA
 #include "f_op/f_op_actor_enemy.h"
 
 /* 80682638-8068263C 000008 0004+00 2/2 0/0 0/0 .bss             None */

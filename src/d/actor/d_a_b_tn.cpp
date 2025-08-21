@@ -3,13 +3,13 @@
  *
  */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_b_tn.h"
 #include <cmath.h>
 #include "Z2AudioLib/Z2Instances.h"
 #include "d/actor/d_a_boomerang.h"
 #include "d/actor/d_a_nbomb.h"
-
-UNK_REL_DATA;
 
 #include "f_op/f_op_actor_enemy.h"
 

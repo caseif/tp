@@ -3,13 +3,13 @@
  * 
 */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_b_gg.h"
 #include "d/d_com_inf_game.h"
 #include "c/c_damagereaction.h"
 #include "m_Do/m_Do_graphic.h"
 #include "Z2AudioLib/Z2Instances.h"
-
-UNK_REL_DATA;
 #include "f_op/f_op_actor_enemy.h"
 
 enum daE_GG_TYPE {

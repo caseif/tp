@@ -174,7 +174,7 @@ namespace daObjSwpush {
     };
 
     #ifdef DEBUG
-    class Hio_c : public JORReflexible {
+    class Hio_c_2 : public JORReflexible {
     public:
         void ct() {
             if (mCount++ == 0) {
@@ -195,7 +195,7 @@ namespace daObjSwpush {
         }
 
         /* 0x4 */ int mCount;
-        /* 0x8 */ Attr_c field_0x8[5];
+        /* 0x8 */ Hio_c::Attr_c field_0x8[5];
     };
     #endif
 };

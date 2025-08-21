@@ -74,6 +74,10 @@ public:
     /* 8068A5EC */ daE_BI_HIO_c();
     /* 8068D2DC */ virtual ~daE_BI_HIO_c() {}
 
+#if DEBUG
+    void genMessage(JORMContext*);
+#endif
+
     /* 爆弾虫 - Bomb Bug */
     /* 0x04 */ s8 field_0x4;
     /* 0x08 */ f32 basic_size;          // 基本サイズ - Basic Size

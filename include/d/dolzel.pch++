@@ -1,0 +1,14 @@
+#include "dolphin/types.h"
+#include "m_Do/m_Do_ext.h"
+#include "d/d_cc_d.h"
+
+static u32 lit_1787[1 + 4 /* padding */] = {
+    0x02000201,
+    0x40080000,
+    0x00000000,
+    0x3FE00000,
+    0x00000000,
+};
+static u8 cNullVec__6Z2Calc[12] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};

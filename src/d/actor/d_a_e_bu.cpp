@@ -3,9 +3,9 @@
  * 
 */
 
-#include "d/actor/d_a_e_bu.h"
+#include "d/dolzel.h"
 
-UNK_REL_DATA;
+#include "d/actor/d_a_e_bu.h"
 #include "f_op/f_op_actor_enemy.h"
 
 enum daE_BU_TYPE {

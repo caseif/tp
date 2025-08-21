@@ -419,6 +419,13 @@ DANPCF_C_HACK = '-pragma "inline_max_size(494)"'
 
 config.warn_missing_config = True
 config.warn_missing_source = False
+config.precompiled_headers = [
+    {
+        "source": "d/dolzel.pch++",
+        "mw_version": MWVersion(config.version),
+        "cflags": cflags_rel,
+    }
+]
 config.libs = [
     {
         "lib": "machine",
@@ -1542,10 +1549,10 @@ config.libs = [
     ActorRel(MatchingFor("GZ2E01"), "d_a_cstaF"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_demo_item"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_door_bossL1"),
-    ActorRel(Equivalent, "d_a_e_dn"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_dn"),
     ActorRel(Equivalent, "d_a_e_fm"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_ga"),
-    ActorRel(Equivalent, "d_a_e_hb"),
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_hb"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_nest"),
     ActorRel(Equivalent, "d_a_e_rd"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_econt"),
@@ -1620,7 +1627,7 @@ config.libs = [
     ActorRel(Equivalent, "d_a_b_dr"), # weak func order
     ActorRel(Equivalent, "d_a_b_dre"), # weak func order
     ActorRel(Equivalent, "d_a_b_ds"),
-    ActorRel(Equivalent, "d_a_b_gg"),
+    ActorRel(MatchingFor("GZ2E01"), "d_a_b_gg"),
     ActorRel(NonMatching, "d_a_b_gm"),
     ActorRel(NonMatching, "d_a_b_gnd"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_b_go"),
@@ -1649,25 +1656,25 @@ config.libs = [
     ActorRel(MatchingFor("GZ2E01"), "d_a_door_push"),
     ActorRel(NonMatching, "d_a_e_ai"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_arrow"),
-    ActorRel(Equivalent, "d_a_e_ba"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_ba"),
     ActorRel(NonMatching, "d_a_e_bee"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_bg"),
     ActorRel(Equivalent, "d_a_e_bi"), # weak func order
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_bi_leaf"),
     ActorRel(Equivalent, "d_a_e_bs"), # weak func order
-    ActorRel(Equivalent, "d_a_e_bu"),
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_bu"),
     ActorRel(Equivalent, "d_a_e_bug"), # weak func order
-    ActorRel(Equivalent, "d_a_e_cr"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_cr"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_cr_egg"),
-    ActorRel(Equivalent, "d_a_e_db"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_db"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_db_leaf"),
-    ActorRel(Equivalent, "d_a_e_dd"), # weak func order
-    ActorRel(Equivalent, "d_a_e_df"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_dd"),
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_df"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_dk"),
     ActorRel(Equivalent, "d_a_e_dt"), # weak func order
     ActorRel(NonMatching, "d_a_e_fb"),
     ActorRel(NonMatching, "d_a_e_fk"),
-    ActorRel(Equivalent, "d_a_e_fs"), # weak func order
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_fs"),
     ActorRel(Equivalent, "d_a_e_fz"), # weak func order
     ActorRel(NonMatching, "d_a_e_gb"),
     ActorRel(NonMatching, "d_a_e_ge"),
@@ -1681,7 +1688,7 @@ config.libs = [
     ActorRel(NonMatching, "d_a_e_hz"),
     ActorRel(NonMatching, "d_a_e_hzelda"),
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_is"),
-    ActorRel(Equivalent, "d_a_e_kg"),
+    ActorRel(MatchingFor("GZ2E01"), "d_a_e_kg"),
     ActorRel(Equivalent, "d_a_e_kk"), # weak func order
     ActorRel(Equivalent, "d_a_e_kr"), # weak func order
     ActorRel(MatchingFor("GZ2E01"), "d_a_e_mb"),

@@ -3,6 +3,8 @@
  * Enemy - Puppet
 */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_fs.h"
 #include "SSystem/SComponent/c_math.h"
 #include "JSystem/J3DGraphBase/J3DMaterial.h"
@@ -12,7 +14,6 @@
 #include "d/actor/d_a_npc_ks.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_s_play.h"
-UNK_REL_DATA
 #include "f_op/f_op_actor_enemy.h"
 #include "Z2AudioLib/Z2Instances.h"
 

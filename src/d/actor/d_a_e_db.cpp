@@ -3,11 +3,11 @@
  * 
 */
 
+#include "d/dolzel.h"
+
 #include "d/actor/d_a_e_db.h"
 #include "d/actor/d_a_e_db_leaf.h"
 #include "f_op/f_op_kankyo_mng.h"
-
-UNK_REL_DATA;
 #include "f_op/f_op_actor_enemy.h"
 
 enum daE_DB_ACTION {
