@@ -1,3 +1,4 @@
+#include "buffer_io.h"
 #include "char_io.h"
 #include "critical_regions.h"
 #include "misc_io.h"

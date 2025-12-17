@@ -38,6 +38,7 @@ struct JASDSPChannel {
     static void updateAll();
     static int killActiveChannel();
     static JASDSPChannel* getHandle(u32);
+    inline u32 getStatus() {return mStatus;}
 
     static JASDSPChannel* sDspChannels;
 

@@ -1,5 +1,8 @@
+#include "buffer_io.h"
 #include "direct_io.h"
 #include "critical_regions.h"
+#include "misc_io.h"
+#include "string.h"
 #include "wchar_io.h"
 
 size_t fwrite(const void* buffer, size_t size, size_t count, FILE* stream) {

@@ -1,4 +1,7 @@
+#include "alloc.h"
+#include "buffer_io.h"
 #include "file_io.h"
+#include "FILE_POS.h"
 #include "ctype.h"
 
 int fclose(FILE* file) {

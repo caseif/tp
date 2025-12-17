@@ -2,6 +2,8 @@
 #include "ansi_fp.h"
 #include "critical_regions.h"
 #include "ctype.h"
+#include "direct_io.h"
+#include "mbstring.h"
 #include "scanf.h"
 #include "stdio.h"
 #include "string.h"

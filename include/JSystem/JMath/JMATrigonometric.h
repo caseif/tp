@@ -4,6 +4,15 @@
 #include "dolphin/types.h"
 #include <utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern double asin(double);
+extern double atan(double);
+#ifdef __cplusplus
+}
+#endif
+
 namespace JMath {
 template<typename T>
 struct TAngleConstant_;
@@ -64,9 +73,17 @@ struct TSinCosTable {
  * @ingroup jsystem-jmath
  * 
  */
+template<int N, typename T>
 struct TAtanTable {
-    f32 table[1025];
-    u8 pad[0x1C];
+    T table[N + 1];
+    TAtanTable() {
+        // (u32) cast needed for cmplwi instead of cmpwi
+        for (int i = 0; i < (u32)N; i++) {
+            table[i] = atan((1.0 / (f64)N) * i);
+        }
+        table[0] = 0.0f;
+        table[N] = 0.7853982;  // 0.25 * PI
+    }
 };
 
 /**
@@ -75,8 +92,15 @@ struct TAtanTable {
  */
 template<int N, typename T>
 struct TAsinAcosTable {
-    T table[1025];
-    u8 pad[0x1C];
+    T table[N + 1];
+
+    TAsinAcosTable() {
+        for (int i = 0; i < 1024; i++) {
+            table[i] = asin((1.0 / (f64)N) * i);
+        }
+        table[0] = 0.0f;
+        table[1024] = 0.7853982;  // 0.25 * PI
+    }
 
     T acos_(T x) const {
         if (x >= 1.0f) {
@@ -95,9 +119,9 @@ struct TAsinAcosTable {
     }
 };
 
-extern TSinCosTable<13, f32> sincosTable_;
-extern TAtanTable atanTable_;
-extern TAsinAcosTable<1024, f32> asinAcosTable_;
+extern TSinCosTable<13, f32> sincosTable_ ATTRIBUTE_ALIGN(32);
+extern TAtanTable<1024, f32> atanTable_ ATTRIBUTE_ALIGN(32);
+extern TAsinAcosTable<1024, f32> asinAcosTable_ ATTRIBUTE_ALIGN(32);
 
 inline f32 acosDegree(f32 x) {
     return asinAcosTable_.acosDegree(x);
