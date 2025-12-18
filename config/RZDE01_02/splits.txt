@@ -3921,7 +3921,11 @@ revolution/gd/GDGeometry.c:
 	.text       start:0x803A7B88 end:0x803A8570
 	.data       start:0x80430788 end:0x804307F0
 
+revolution/os/__start.c:
+	.init       start:0x8000403C end:0x80004338
+
 PowerPC_EABI_Support/Runtime/Src/__mem.c:
+	.init       start:0x80004338 end:0x8000446C
 	.text       start:0x803A8570 end:0x803A858C
 
 PowerPC_EABI_Support/Runtime/Src/__va_arg.c:
@@ -4263,6 +4267,7 @@ TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Processor/ppc/Generic/flush_cache.
 	.text       start:0x803B5350 end:0x803B5388
 
 TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/mem_TRK.c:
+	.init       start:0x8000446C end:0x800044C0
 	.text       start:0x803B5388 end:0x803B5440
 
 TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/string_TRK.c:

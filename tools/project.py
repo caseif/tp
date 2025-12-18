@@ -692,7 +692,7 @@ def generate_build_ninja(
     mwcc_sjis_extab_implicit: List[Optional[Path]] = [*mwcc_sjis_implicit, dtk]
 
     # MWCC for LTO
-    mwcc_lto_cmd = f"{wrapper_cmd}{mwcc} -ipa program-final -MMD $in"
+    mwcc_lto_cmd = f"{wrapper_cmd}{mwcc} -ipa program-final -gccdep -MMD $in"
     mwcc_lto_implicit: List[Optional[Path]] = [*mwcc_implicit]
 
     # MWLD
