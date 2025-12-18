@@ -264,7 +264,7 @@ cflags_base = [
 if config.version == "ShieldD":
     cflags_base.extend(["-O0", "-inline off", "-RTTI on", "-str reuse", "-enc SJIS", "-DDEBUG=1", "-DWIDESCREEN_SUPPORT=1"])
 elif config.version in ["RZDE01_00", "RZDE01_02", "RZDJ01", "Shield"]:
-    cflags_base.extend(["-O4,p", "-inline auto", "-ipa file", "-RTTI on", "-str reuse", "-enc SJIS", "-DWIDESCREEN_SUPPORT=1"])
+    cflags_base.extend(["-O4,p", "-inline auto", "-ipa program", "-RTTI on", "-str reuse", "-enc SJIS", "-DWIDESCREEN_SUPPORT=1"])
 else:
     cflags_base.extend(["-O4,p", "-inline auto", "-RTTI off", "-str reuse", "-multibyte"])
 
@@ -378,7 +378,7 @@ cflags_revolution_base = [
     #"-char unsigned",
     "-sym on",
     "-inline auto",
-    "-ipa file",
+    "-ipa program",
     "-i include",
     f"-i build/{config.version}/include",
     "-ir src/revolution",
@@ -464,7 +464,7 @@ def MWVersion(cfg_version: str | None) -> str:
             return "GC/2.7"
 
 if config.version in ["RZDE01_00", "RZDE01_02", "RZDJ01"]:
-    config.linker_version = "GC/3.0a5"
+    config.linker_version = "GC/3.0a3p1"
 else:
     config.linker_version = MWVersion(config.version)
 
@@ -2665,7 +2665,7 @@ config.libs = [
     ActorRel(MatchingFor(ALL_GCN), "d_a_tag_lv6CstaSw"),
     ActorRel(MatchingFor(ALL_GCN), "d_a_tag_assistance"),
     ActorRel(MatchingFor(ALL_GCN), "d_a_tag_bottle_item"),
-    ActorRel(MatchingFor(ALL_GCN), "d_a_tag_chgrestart"),
+    ActorRel(MatchingFor(ALL_GCN, "RZDE01_02"), "d_a_tag_chgrestart"),
     ActorRel(MatchingFor(ALL_GCN), "d_a_tag_csw"),
     ActorRel(MatchingFor(ALL_GCN, "Shield"), "d_a_tag_escape"),
     ActorRel(MatchingFor(ALL_GCN), "d_a_tag_firewall"),

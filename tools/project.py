@@ -74,6 +74,7 @@ class Object:
         # Internal
         self.src_path: Optional[Path] = None
         self.asm_path: Optional[Path] = None
+        self.src_irobj_path: Optional[Path] = None
         self.src_obj_path: Optional[Path] = None
         self.asm_obj_path: Optional[Path] = None
         self.ctx_path: Optional[Path] = None
@@ -121,6 +122,7 @@ class Object:
                 Path(obj.options["asm_dir"]) / obj.options["source"]
             ).with_suffix(".s")
         base_name = Path(self.name).with_suffix("")
+        obj.src_irobj_path = build_dir / "src" / f"{base_name}.irobj"
         obj.src_obj_path = build_dir / "src" / f"{base_name}.o"
         obj.asm_obj_path = build_dir / "mod" / f"{base_name}.o"
         obj.ctx_path = build_dir / "src" / f"{base_name}.ctx"
@@ -689,6 +691,10 @@ def generate_build_ninja(
     mwcc_sjis_extab_cmd = f'{CHAIN}{mwcc_sjis_cmd} && {dtk} extab clean --padding "$extab_padding" $out $out'
     mwcc_sjis_extab_implicit: List[Optional[Path]] = [*mwcc_sjis_implicit, dtk]
 
+    # MWCC for LTO
+    mwcc_lto_cmd = f"{wrapper_cmd}{mwcc} -ipa program-final -MMD $in"
+    mwcc_lto_implicit: List[Optional[Path]] = [*mwcc_implicit]
+
     # MWLD
     mwld = compiler_path / "mwldeppc.exe"
     mwld_cmd = f"{wrapper_cmd}{mwld} $ldflags -o $out @$out.rsp"
@@ -807,6 +813,14 @@ def generate_build_ninja(
     )
     n.newline()
 
+    n.comment("Perform LTO")
+    n.rule(
+        name="mwcc_lto",
+        command=mwcc_lto_cmd,
+        description="LTO $out",
+    )
+    n.newline()
+
     if len(config.custom_build_rules or {}) > 0:
         n.comment("Custom project build rules (pre/post-processing)")
     for rule in config.custom_build_rules or {}:
@@ -875,6 +889,34 @@ def generate_build_ninja(
     def map_path(path: Path) -> Path:
         return path.parent / (path.name + ".MAP")
 
+    class LtoStep:
+        def __init__(self) -> None:
+            self.name = "LTO"
+            self.inputs: List[str] = []
+            self.outputs: List[str] = []
+
+        def add(self, irobj: Path, obj: Path) -> None:
+            irobj_path = serialize_path(irobj)
+            obj_path = serialize_path(obj)
+            if irobj_path not in self.inputs:
+                self.inputs.append(irobj_path)
+            if obj_path not in self.outputs:
+                self.outputs.append(obj_path)
+
+        def write(self, n: ninja_syntax.Writer) -> None:
+            n.comment(f"Perform LTO")
+            n.build(
+                outputs=self.outputs,
+                rule="mwcc_lto",
+                inputs=self.inputs,
+                implicit=[
+                    *mwcc_implicit,
+                ],
+                order_only="post-compile",
+            )
+            n.newline()
+
+
     class LinkStep:
         def __init__(self, config: BuildConfigModule) -> None:
             self.name = config["name"]
@@ -918,7 +960,7 @@ def generate_build_ninja(
                     ],
                     implicit_outputs=elf_map,
                     variables={"ldflags": elf_ldflags},
-                    order_only="post-compile",
+                    order_only="post-lto",
                 )
             else:
                 preplf_path = build_path / self.name / f"{self.name}.preplf"
@@ -945,7 +987,7 @@ def generate_build_ninja(
                     implicit=mwld_implicit,
                     implicit_outputs=preplf_map,
                     variables={"ldflags": preplf_ldflags},
-                    order_only="post-compile",
+                    order_only="post-lto",
                 )
                 n.build(
                     outputs=plf_path,
@@ -954,10 +996,11 @@ def generate_build_ninja(
                     implicit=[self.ldscript, preplf_path, *mwld_implicit],
                     implicit_outputs=plf_map,
                     variables={"ldflags": plf_ldflags},
-                    order_only="post-compile",
+                    order_only="post-lto",
                 )
             n.newline()
 
+    lto_step = LtoStep()
     link_outputs: List[Path] = []
     if build_config:
         link_steps: List[LinkStep] = []
@@ -998,11 +1041,11 @@ def generate_build_ninja(
                 )
                 n.newline()
 
-        def c_build(obj: Object, src_path: Path) -> Optional[Path]:
+        def c_build(obj: Object, src_path: Path) -> Optional[Tuple[Path, Path]]:
             # Avoid creating duplicate build rules
-            if obj.src_obj_path is None or obj.src_obj_path in source_added:
-                return obj.src_obj_path
-            source_added.add(obj.src_obj_path)
+            if obj.src_irobj_path is None or obj.src_irobj_path in source_added:
+                return obj.src_irobj_path, obj.src_obj_path
+            source_added.add(obj.src_irobj_path)
 
             cflags = obj.options["cflags"]
             extra_cflags = obj.options["extra_cflags"]
@@ -1052,7 +1095,7 @@ def generate_build_ninja(
                 )
             n.comment(f"{obj.name}: {lib_name} (linked {obj.completed})")
             n.build(
-                outputs=obj.src_obj_path,
+                outputs=obj.src_irobj_path,
                 rule=build_rule,
                 inputs=src_path,
                 variables=variables,
@@ -1090,7 +1133,7 @@ def generate_build_ninja(
             if obj.options["add_to_all"]:
                 source_inputs.append(obj.src_obj_path)
 
-            return obj.src_obj_path
+            return obj.src_irobj_path, obj.src_obj_path
 
         def asm_build(
             obj: Object, src_path: Path, obj_path: Optional[Path]
@@ -1125,7 +1168,7 @@ def generate_build_ninja(
 
             return obj_path
 
-        def add_unit(build_obj: BuildConfigUnit, link_step: LinkStep):
+        def add_unit(build_obj: BuildConfigUnit, lto_step: LtoStep, link_step: LinkStep):
             obj_path, obj_name = build_obj["object"], build_obj["name"]
             obj = objects.get(obj_name)
             if obj is None:
@@ -1136,12 +1179,13 @@ def generate_build_ninja(
                 return
 
             link_built_obj = obj.completed
+            built_irobj_path: Optional[Path] = None
             built_obj_path: Optional[Path] = None
             if obj.src_path is not None and obj.src_path.exists():
                 check_path_case(obj.src_path)
                 if file_is_c_cpp(obj.src_path):
                     # Add C/C++ build rule
-                    built_obj_path = c_build(obj, obj.src_path)
+                    built_irobj_path, built_obj_path = c_build(obj, obj.src_path)
                 elif file_is_asm(obj.src_path):
                     # Add assembler build rule
                     built_obj_path = asm_build(obj, obj.src_path, obj.src_obj_path)
@@ -1162,6 +1206,8 @@ def generate_build_ninja(
                 link_built_obj = True
                 built_obj_path = asm_build(obj, obj.asm_path, obj.asm_obj_path)
 
+            if built_irobj_path is not None:
+                lto_step.add(built_irobj_path, built_obj_path)
             if link_built_obj and built_obj_path is not None:
                 # Use the source-built object
                 link_step.add(built_obj_path)
@@ -1172,7 +1218,7 @@ def generate_build_ninja(
         # Add DOL link step
         link_step = LinkStep(build_config)
         for unit in build_config["units"]:
-            add_unit(unit, link_step)
+            add_unit(unit, lto_step, link_step)
         link_steps.append(link_step)
 
         if config.build_rels:
@@ -1180,7 +1226,7 @@ def generate_build_ninja(
             for module in build_config["modules"]:
                 module_link_step = LinkStep(module)
                 for unit in module["units"]:
-                    add_unit(unit, module_link_step)
+                    add_unit(unit, lto_step, module_link_step)
                 # Add empty object to empty RELs
                 if len(module_link_step.inputs) == 0:
                     if config.rel_empty_file is None:
@@ -1191,6 +1237,7 @@ def generate_build_ninja(
                             "name": config.rel_empty_file,
                             "autogenerated": True,
                         },
+                        lto_step,
                         module_link_step,
                     )
                 link_steps.append(module_link_step)
@@ -1210,6 +1257,11 @@ def generate_build_ninja(
         # Add all build steps needed before we link and after compiling objects
         write_custom_step("post-compile", "pre-compile")
 
+        lto_step.write(n)
+        n.newline()
+
+        write_custom_step("post-lto", "post-compile")
+
         ###
         # Link
         ###
@@ -1219,7 +1271,7 @@ def generate_build_ninja(
         n.newline()
 
         # Add all build steps needed after linking and before GC/Wii native format generation
-        write_custom_step("post-link", "post-compile")
+        write_custom_step("post-link", "post-lto")
 
         ###
         # Generate DOL
