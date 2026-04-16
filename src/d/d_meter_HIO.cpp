@@ -1767,9 +1767,9 @@ dMeter_drawHIO_c::dMeter_drawHIO_c() {
     field_0x318 = 0.0f;
     field_0x31c = 0.0f;
 
-    field_0x320 = 1.0f;
-    field_0x324 = 0.0f;
-    field_0x328 = 0.0f;
+    mButtonZTextScale = 1.0f;
+    mButtonZTextPosX = 0.0f;
+    mButtonZTextPosY = 0.0f;
 
     mButtonZScale = 1.0f;
     mButtonZAlpha = 0.9f;
@@ -1856,20 +1856,20 @@ dMeter_drawHIO_c::dMeter_drawHIO_c() {
     mButtonYItemBasePosY[1] = 0.0f;
     mButtonYItemBaseAlpha[1] = 0.5f;
 
-    field_0x280 = 1.5f;
-    field_0x288 = 0.0f;
-    field_0x290 = 6.0f;
-    field_0x298[0] = 0.5f;
+    mButtonZWiiItemBaseScale = 1.5f;
+    mButtonZWiiItemBasePosX = 0.0f;
+    mButtonZWiiItemBasePosY = 6.0f;
+    mButtonZWiiItemBaseAlpha[0] = 0.5f;
 
     field_0x284 = 1.0f;
     field_0x28c = 0.0f;
     field_0x294 = 4.0f;
-    field_0x298[1] = 1.0f;
+    mButtonZWiiItemBaseAlpha[1] = 1.0f;
 
-    mButtonZItemBaseScale = 1.0f;
-    mButtonZItemBasePosX = 0.0f;
-    mButtonZItemBasePosY = 0.0f;
-    mButtonZItemBaseAlpha = 0.5f;
+    mButtonZGCNItemBaseScale = 1.0f;
+    mButtonZGCNItemBasePosX = 0.0f;
+    mButtonZGCNItemBasePosY = 0.0f;
+    mButtonZGCNItemBaseAlpha = 0.5f;
 
     mButtonBaseAlpha = 0.55f;
 
@@ -2599,10 +2599,10 @@ void dMeter_drawHIO_c::genMessage(JORMContext* mctx) {
     mctx->genLabel("************************************", 0);
     mctx->genLabel("*　　　Ｚアイテムベースの調整　　　*", 0);
     mctx->genLabel("************************************", 0);
-    mctx->genSlider("拡大縮小", &mButtonZItemBaseScale, 0.0f, 3.0f);
-    mctx->genSlider("位置調整Ｘ", &mButtonZItemBasePosX, -300.0f, 300.0f);
-    mctx->genSlider("位置調整Ｙ", &mButtonZItemBasePosY, -300.0f, 300.0f);
-    mctx->genSlider("アルファ", &mButtonZItemBaseAlpha, 0.0f, 1.0f);
+    mctx->genSlider("拡大縮小", &mButtonZGCNItemBaseScale, 0.0f, 3.0f);
+    mctx->genSlider("位置調整Ｘ", &mButtonZGCNItemBasePosX, -300.0f, 300.0f);
+    mctx->genSlider("位置調整Ｙ", &mButtonZGCNItemBasePosY, -300.0f, 300.0f);
+    mctx->genSlider("アルファ", &mButtonZGCNItemBaseAlpha, 0.0f, 1.0f);
     mctx->genLabel("", 0);
     mctx->genLabel("************************************", 0);
     mctx->genLabel("* 　　　　Ｚフォントの調整　　　　 *", 0);

@@ -41,6 +41,7 @@ public:
     void initRupeeKey();
     void initButton();
     void initButtonCross();
+    void initTouchSubMenu();
     void playPikariBckAnimation(f32);
     void setPikariBpkAnimation(J2DAnmColor*);
     void playPikariBpkAnimation(f32);
@@ -146,22 +147,39 @@ public:
     bool isEmphasisR() { return field_0x768[2] == 7 ? true : false; }
     void setEmphasisA(u8 param_0) { field_0x761 = param_0; }
     void setEmphasisB(u8 param_0) { field_0x762 = param_0; }
+#if PLATFORM_WII
     u8 getInsideObjCheck() { return field_0x772; }
+#else
+    u8 getInsideObjCheck() { return field_0x772; }
+#endif
 
 private:
     /* 0x004 */ item_params mItemParams[4];
     /* 0x074 */ JKRExpHeap* heap;
     /* 0x078 */ J2DScreen* mpScreen;
+#if PLATFORM_WII
+    /* WII 0x07C */ J2DScreen* mpWiiScreen;
+#endif
     /* 0x07C */ J2DScreen* mpKanteraScreen;
     /* 0x080 */ J2DScreen* mpPikariScreen;
+#if PLATFORM_WII
+    /* WII 0x088 */ J2DPicture* mpItemNumTex[4][3];
+#else
     /* 0x084 */ J2DPicture* mpItemNumTex[2][3];
-    /* 0x09C */ CPaneMgr* field_0x9c[3];
+#endif
+    /* 0x09C */ J2DPicture* field_0x9c[3];
     /* 0x0A8 */ int field_0xa8;
-    /* 0x0AC */ dKantera_icon_c* mpKanteraMeter[2];
-    /* 0x0B4 */ u8 field_0xb4[8];
+    /* 0x0AC */ dKantera_icon_c* mpKanteraMeter[4];
     /* 0x0BC */ CPaneMgr* mpParent;
     /* 0x0C0 */ CPaneMgr* mpAText[5];
     /* 0x0D4 */ CPaneMgr* mpBText[5];
+#if PLATFORM_WII
+    /* WII 0x104 */ CPaneMgr* field_0x104_wii;
+    /* WII 0x108 */ CPaneMgr* field_0x108_wii;
+    /* WII 0x10C */ CPaneMgr* field_0x10c_wii[5];
+    /* WII 0x120 */ CPaneMgr* field_0x120_wii[5];
+    /* WII 0x134 */ CPaneMgr* field_0x134_wii[4];
+#endif
     /* 0x0E8 */ CPaneMgr* mpXYText[5][3];
     /* 0x124 */ CPaneMgr* mpLifeParent;
     /* 0x128 */ CPaneMgr* mpLifeParts[20];
@@ -185,15 +203,58 @@ private:
     /* 0x2FC */ int field_0x2fc;
     /* 0x300 */ CPaneMgr* mpButtonA;
     /* 0x304 */ CPaneMgr* mpButtonB;
+#if PLATFORM_WII
+    /* WII 0x364 */ CPaneMgr* field_0x364_wii;
+#endif
     /* 0x308 */ CPaneMgr* mpButtonMidona;
     /* 0x30C */ CPaneMgr* mpButtonXY[3];
     /* 0x318 */ CPaneMgr* mpLightB;
+#if PLATFORM_WII
+    /* WII 0x37C */ CPaneMgr* mpLightXY[4];
+#else
     /* 0x31C */ CPaneMgr* mpLightXY[3];
+#endif
     /* 0x328 */ CPaneMgr* mpItemB;
+#if PLATFORM_WII
+    /* WII 0x390 */ CPaneMgr* mpItemXY[4];
+#else
     /* 0x32C */ CPaneMgr* mpItemXY[2];
+#endif
     /* 0x334 */ CPaneMgr* mpItemR;
     /* 0x338 */ CPaneMgr* mpBTextA;
     /* 0x33C */ CPaneMgr* mpBTextB;
+#if PLATFORM_WII
+    /* WII 0x3AC */ CPaneMgr* mpXYTextN[2];
+    /* WII 0x3B4 */ CPaneMgr* mpJTextN;
+    /* WII 0x3B8 */ CPaneMgr* mpFATextN;
+    /* WII 0x3BC */ CPaneMgr* mpFBTextN;
+    /* WII 0x3C0 */ CPaneMgr* mpFA2TextN;
+    /* WII 0x3C4 */ CPaneMgr* mpItemT1N;
+    /* WII 0x3C8 */ CPaneMgr* mpFJTextN;
+    /* 0x354 */ CPaneMgr* mpTextXY[3];
+    /* 0x360 */ CPaneMgr* mpTextI;
+    /* 0x364 */ CPaneMgr* mpTextM;
+    /* 0x368 */ CPaneMgr* mpButtonCrossParent;
+    /* WII 0x3CC */ CPaneMgr* mpFTextN[3];
+    /* WII 0x3D8 */ CPaneMgr* mpITextN;
+    /* 0x34C */ CPaneMgr* mpTextA;
+    /* 0x350 */ CPaneMgr* mpTextB;
+    /* 0x36C */ CPaneMgr* field_0x36c;
+    /* 0x370 */ CPaneMgr* field_0x370[5];
+    /* 0x39C */ CPaneMgr* mpPikariParent;
+    /* WII 0x418 */ CPaneMgr* field_0x418_wii;
+    /* WII 0x41C */ CPaneMgr* field_0x41c_wii;
+    /* WII 0x420 */ CPaneMgr* field_0x420_wii;
+    /* 0x3A0 */ CPaneMgrAlpha* mpLifeTexture[20][2];
+    /* 0x440 */ CPaneMgrAlpha* mpHeartBase[20];
+    /* 0x490 */ CPaneMgr* mpJujiI[3];
+    /* 0x4A4 */ CPaneMgr* mpJujiM[3];
+    /* 0x52C */ CPaneMgr* field_0x52c_wii;
+    /* 0x530 */ CPaneMgr* field_0x530_wii[5];
+    /* 0x4C8 */ CPaneMgr* field_0x4c8[5];
+    /* 0x4E4 */ ResTIMG* mpItemBTex[2][2];
+    /* 0x4F4 */ ResTIMG* mpItemXYTex[4][2][2];
+#else
     /* 0x340 */ CPaneMgr* mpBTextXY[3];
     /* 0x34C */ CPaneMgr* mpTextA;
     /* 0x350 */ CPaneMgr* mpTextB;
@@ -201,20 +262,21 @@ private:
     /* 0x360 */ CPaneMgr* mpTextI;
     /* 0x364 */ CPaneMgr* mpTextM;
     /* 0x368 */ CPaneMgr* mpButtonCrossParent;
-    /* 0x36C */ int field_0x36c;
-    /* 0x370 */ u8 field_0x370[0x2C];
+    /* 0x36C */ CPaneMgr* field_0x36c;
+    /* 0x370 */ u8 field_0x370[0x39c - 0x370];
     /* 0x39C */ CPaneMgr* mpPikariParent;
     /* 0x3A0 */ CPaneMgrAlpha* mpLifeTexture[20][2];
     /* 0x440 */ CPaneMgrAlpha* mpHeartBase[20];
     /* 0x490 */ CPaneMgr* mpJujiI[5];
     /* 0x4A4 */ CPaneMgr* mpJujiM[5];
     /* 0x4B8 */ CPaneMgrAlpha* mpUzu;
-    /* 0x4BC */ u8 field_0x4bc[0x28];
+    /* 0x4BC */ u8 field_0x4bc[0x4e4 - 0x4bc];
     /* 0x4E4 */ ResTIMG* mpItemBTex[2][2];
     /* 0x4F4 */ ResTIMG* mpItemXYTex[2][2][2];
+#endif
     /* 0x514 */ J2DPicture* mpItemBPane;
     /* 0x518 */ J2DPicture* mpItemXYPane[3];
-    /* 0x524 */ int field_0x524[2][2];
+    /* 0x524 */ J2DPicture* field_0x524[2][2];
     /* 0x534 */ J2DAnmTransformKey* mPikariBck;
     /* 0x538 */ J2DAnmColor* mPikariBpk;
     /* 0x53C */ J2DAnmColor* mpOxygenBpk[3];
@@ -246,6 +308,10 @@ private:
     /* 0x5FC */ f32 mMeterAlphaRate[3];
     /* 0x608 */ f32 field_0x608;
     /* 0x60C */ f32 field_0x60c;
+#if PLATFORM_WII
+    /* WII 0x6A4 */ f32 field_0x6a4_wii;
+    /* WII 0x6A8 */ f32 field_0x6a8_wii;
+#endif
     /* 0x610 */ f32 field_0x610[3];
     /* 0x61C */ f32 field_0x61c;
     /* 0x620 */ f32 field_0x620[3];
@@ -261,6 +327,11 @@ private:
     /* 0x6E8 */ f32 field_0x6e8;
     /* 0x6EC */ f32 field_0x6ec;
     /* 0x6F0 */ f32 field_0x6f0;
+#if PLATFORM_WII
+    /* WII 0x790 */ f32 field_0x790_wii;
+    /* WII 0x794 */ f32 field_0x794_wii;
+    /* WII 0x798 */ f32 field_0x798_wii[4];
+#endif
     /* 0x6F4 */ f32 mLightDropVesselScale;
     /* 0x6F8 */ f32 field_0x6f8;
     /* 0x6FC */ f32 field_0x6fc;
@@ -277,17 +348,28 @@ private:
     /* 0x73C */ f32 field_0x73c;
     /* 0x740 */ u16 field_0x740;
     /* 0x742 */ s16 field_0x742[3];
+#if PLATFORM_WII
+    /* 0x800 */ u8 field_0x7fc_wii[0x808 - 0x7FC];
+    /* 0x808 */ u16 field_0x808_wii;
+#else
     /* 0x748 */ u8 field_0x748[0xC];
-    /* 0x756 */ u16 field_0x754;
+#endif
+    /* 0x754 */ u16 field_0x754;
     /* 0x756 */ s16 field_0x756;
     /* 0x758 */ u8 field_0x758;
     /* 0x759 */ u8 field_0x759;
     /* 0x75A */ u8 field_0x75a;
     /* 0x75B */ u8 field_0x75b;
-    /* 0x75C */ u8 field_0x75c[3];
+    /* 0x75C */ u8 field_0x75c[3]; // -0x2
     /* 0x75F */ u8 field_0x75f;
     /* 0x760 */ u8 field_0x760;
     /* 0x761 */ u8 field_0x761;
+#if PLATFORM_WII
+    /* WII 0x818 */ u8 field_0x818_wii;
+    /* WII 0x819 */ u8 field_0x819_wii;
+    /* WII 0x81A */ u8 field_0x81a_wii;
+    /* WII 0x81B */ u8 field_0x81b_wii;
+#endif
     /* 0x762 */ u8 field_0x762;
     /* 0x763 */ u8 field_0x763;
     /* 0x764 */ u8 field_0x764;
@@ -302,7 +384,12 @@ private:
     /* 0x770 */ u8 field_0x770;
     /* 0x771 */ u8 field_0x771;
     /* 0x772 */ u8 field_0x772;
+#if PLATFORM_WII
+    /* 0x773 */ u8 field_0x773[4];
+    /* WII 0x830 */ u8 field_0x830_wii;
+#else
     /* 0x773 */ u8 field_0x773[2];
+#endif
     /* 0x778 */ f32 mParentScale;
     /* 0x77C */ f32 mParentAlpha;
     /* 0x780 */ f32 mButtonsPosX;
@@ -345,8 +432,8 @@ private:
     /* 0x814 */ f32 mItemBBaseAlpha[2];
     /* 0x81C */ f32 mButtonXItemBaseAlpha[2];
     /* 0x824 */ f32 mButtonYItemBaseAlpha[2];
-    /* 0x82C */ f32 field_0x82c[2];
-    /* 0x834 */ f32 mButtonZItemBaseAlpha;
+    /* 0x82C */ f32 mButtonZWiiItemBaseAlpha[2];
+    /* 0x834 */ f32 mButtonZGCNItemBaseAlpha;
     /* 0x838 */ f32 mButtonBaseAlpha;
     /* 0x83C */ f32 mButtonATextSpacing;
     /* 0x840 */ f32 mButtonCrossAlpha;
@@ -358,6 +445,9 @@ private:
     /* 0x858 */ GXColor mButtonZTextColor;
     /* 0x85C */ GXColor mButtonXYTextColor;
     /* 0x860 */ u8 field_0x860[2];
+#if PLATFORM_WII
+    CPaneMgrAlpha* mpUzu; //TODO
+#endif
 };
 
 #endif /* D_METER_D_METER2_DRAW_H */

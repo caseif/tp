@@ -9,9 +9,14 @@
 extern u8 data_8053a730;
 
 class dCsr_mng_c {
+public:
     struct csr_c;
 
     struct node_c : mDoGph_gInf_c::csr_c {
+        node_c();
+
+        virtual void draw(f32, f32);
+
         BOOL set(u8 i_priority, u8, u16 i_mask);
 
         /* 0x04 */ u8 m_priority;
@@ -27,6 +32,12 @@ class dCsr_mng_c {
     struct obj_c : node_c {
     };
 
+    struct csr_c : node_c {
+        csr_c() {}
+        virtual ~csr_c(void);
+        BOOL set(mDoGph_gInf_c::csr_c* i_csr, u16, u8, u8);
+    };
+
     struct list_c {
         list_c() : m_root(NULL) {
         }
@@ -40,7 +51,7 @@ class dCsr_mng_c {
         /* 0x04 */ node_c* m_root;
     };
 
-    struct bloObj_c {
+    struct bloObj_c : obj_c {
         struct paneObj_c {
             paneObj_c(void) {
                 m_handle = NULL;
@@ -59,7 +70,7 @@ class dCsr_mng_c {
         };
 
         bloObj_c() {
-            m_panes = new paneObj_c[1];
+            m_panes = NULL;
             m_screen = 0;
         }
 
@@ -88,11 +99,6 @@ class dCsr_mng_c {
         }
         virtual BOOL isInside(s16, s16);
         void set(u16, u8, u8);
-    };
-
-    struct csr_c : node_c {
-        virtual ~csr_c(void);
-        BOOL set(mDoGph_gInf_c::csr_c* i_csr, u16, u8, u8);
     };
 
 private:

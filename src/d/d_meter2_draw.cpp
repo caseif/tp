@@ -22,6 +22,22 @@
 #include "d/d_pane_class.h"
 #include <cstring>
 
+#if PLATFORM_WII
+#include "d/d_cursor_mng.h"
+#endif
+
+#if PLATFORM_WII
+#define KANTERA_METER_CNT 4
+#else
+#define KANTERA_METER_CNT 2
+#endif
+
+#if PLATFORM_WII
+static dCsr_mng_c::bloObj_c* l_bloObj;
+static dCsr_mng_c::csr_c* l_bloCsr;
+static dComIfG_inf_c::baseCsr_c* l_baseCsr;
+#endif
+
 dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap* mp_heap) {
     OS_REPORT("enter dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap *mp_heap)\n");
 
@@ -48,12 +64,43 @@ dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap* mp_heap) {
     JUT_ASSERT(0, mpScreen != NULL);
     bool fg = mpScreen->setPriority("zelda_game_image.blo", 0x20000, dComIfGp_getMain2DArchive());
     JUT_ASSERT(0, fg != false);
+
+#if PLATFORM_WII
+    l_baseCsr = new dComIfG_inf_c::baseCsr_c(1);
+    l_baseCsr->create();
+
+    l_bloCsr = new dCsr_mng_c::csr_c();
+    l_bloCsr->set(NULL, 2, 0x32, 0);
+    dCsr_mng_c::entryCsr(l_bloCsr);
+
+    l_bloObj = new dCsr_mng_c::bloObj_c();
+    l_bloObj->create(mpScreen, 2, 0x32, 0);
+    dCsr_mng_c::entryObj(l_bloObj);
+
+    mpScreen->search(MULTI_CHAR('item_n'))->hide();
+
+    mpWiiScreen = new J2DScreen();
+    mpWiiScreen->setPriority("zelda_game_image_text.blo", 0x20000, dComIfGp_getMain2DArchive());
+
+    CPaneMgr paneMgr = CPaneMgr();
+
+    mpScreen->search(MULTI_CHAR('map_bp2'));
+    f32 idk[3][4];
+    Vec globalVtx = paneMgr.getGlobalVtx(paneMgr.mPane, &idk, 0, false, 0);
+
+    mpScreen->search(MULTI_CHAR('map_n'));
+    Vec globalVtxCenter = paneMgr.getGlobalVtxCenter(paneMgr.mPane, false, 0);
+
+    field_0x73c = g_drawHIO.mTouchAreaUnselectScale[0] * (globalVtxCenter.x - globalVtx.x) * mDoGph_gInf_c::m_invScale;
+#else
     dPaneClass_showNullPane(mpScreen);
-
     mpScreen->search(MULTI_CHAR('ju_ring5'))->hide();
-    field_0x73c = 0.0f;
 
-    for (int i = 0; i < 2; i++) {
+    field_0x73c = 0.0f;
+#endif
+
+
+    for (int i = 0; i < KANTERA_METER_CNT; i++) {
         mpKanteraMeter[i] = new dKantera_icon_c();
         JUT_ASSERT(0, mpKanteraMeter[i] != NULL);
     }
@@ -89,11 +136,67 @@ dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap* mp_heap) {
     mpParent = new CPaneMgr(mpScreen, MULTI_CHAR('n_all'), 2, NULL);
     JUT_ASSERT(0, mpParent != NULL);
 
-    static u64 const a_tag[] = {MULTI_CHAR('cont_at1'), MULTI_CHAR('cont_at2'), MULTI_CHAR('cont_at3'), MULTI_CHAR('cont_at4'), MULTI_CHAR('cont_at')};
-    static u64 const b_tag[] = {MULTI_CHAR('cont_bt1'), MULTI_CHAR('cont_bt2'), MULTI_CHAR('cont_bt3'), MULTI_CHAR('cont_bt4'), MULTI_CHAR('cont_bt')};
-    static u64 const z_tag[] = {MULTI_CHAR('cont_zt1'), MULTI_CHAR('cont_zt2'), MULTI_CHAR('cont_zt3'), MULTI_CHAR('cont_zt4'), MULTI_CHAR('cont_rt')};
-    static u64 const x_tag[] = {MULTI_CHAR('cont_xt1'), MULTI_CHAR('cont_xt2'), MULTI_CHAR('cont_xt3'), MULTI_CHAR('cont_xt4'), MULTI_CHAR('cont_xt5')};
-    static u64 const y_tag[] = {MULTI_CHAR('cont_yt1'), MULTI_CHAR('cont_yt2'), MULTI_CHAR('cont_yt3'), MULTI_CHAR('cont_yt4'), MULTI_CHAR('cont_yt5')};
+#if PLATFORM_WII
+    static u64 const a_tag[] = {
+        MULTI_CHAR('cont_a11'), MULTI_CHAR('cont_a16'), MULTI_CHAR('cont_a17'),
+        MULTI_CHAR('cont_a18'), MULTI_CHAR('cont_a19'),
+    };
+    static u64 const a2_tag[] = {
+        MULTI_CHAR('cont_a10'), MULTI_CHAR('cont_a12'), MULTI_CHAR('cont_a13'),
+        MULTI_CHAR('cont_a14'), MULTI_CHAR('cont_a15'),
+    };
+    static u64 const b_tag[] = {
+        MULTI_CHAR('cont_bt5'), MULTI_CHAR('cont_bt6'), MULTI_CHAR('cont_bt7'),
+        MULTI_CHAR('cont_bt9'), MULTI_CHAR('cont_b10'),
+    };
+    static u64 const back_tag[] = {
+        MULTI_CHAR('con_ba_1'), MULTI_CHAR('con_bac5'), MULTI_CHAR('con_bac6'),
+        MULTI_CHAR('con_bac7'), MULTI_CHAR('con_bac8'),
+    };
+    static u64 const z_tag[] = {
+        MULTI_CHAR('cont_zt9'), MULTI_CHAR('cont_z14'), MULTI_CHAR('cont_z15'),
+        MULTI_CHAR('cont_z16'), MULTI_CHAR('cont_z17'),
+    };
+    static u64 const jd_tag[] = {
+        MULTI_CHAR('cont_jt1'), MULTI_CHAR('cont_z10'), MULTI_CHAR('cont_z11'),
+        MULTI_CHAR('cont_z12'), MULTI_CHAR('cont_z13'),
+    };
+    static u64 const x_tag[] = {
+        MULTI_CHAR('cont_x10'), MULTI_CHAR('cont_xt9'), MULTI_CHAR('cont_xt8'),
+        MULTI_CHAR('cont_xt7'), MULTI_CHAR('cont_xt6'),
+    };
+    static u64 const y_tag[] = {
+        MULTI_CHAR('cont_y10'), MULTI_CHAR('cont_yt9'), MULTI_CHAR('cont_yt8'),
+        MULTI_CHAR('cont_yt7'), MULTI_CHAR('cont_yt6'),
+    };
+    static u64 const t_tag[] = {
+        MULTI_CHAR('info_ar0'), MULTI_CHAR('info_ar1'), MULTI_CHAR('info_ar2'),
+        MULTI_CHAR('info_ar3'), MULTI_CHAR('info_ar4'), MULTI_CHAR('info_ar5'),
+        MULTI_CHAR('info_ar6'), MULTI_CHAR('info_ar7'), MULTI_CHAR('info_ar8'),
+        MULTI_CHAR('info_ar9'),
+    };
+#else
+    static u64 const a_tag[] = {
+        MULTI_CHAR('cont_at1'), MULTI_CHAR('cont_at2'), MULTI_CHAR('cont_at3'),
+        MULTI_CHAR('cont_at4'), MULTI_CHAR('cont_at'),
+    };
+    static u64 const b_tag[] = {
+        MULTI_CHAR('cont_bt1'), MULTI_CHAR('cont_bt2'), MULTI_CHAR('cont_bt3'),
+        MULTI_CHAR('cont_bt4'), MULTI_CHAR('cont_bt'),
+    };
+    static u64 const z_tag[] = {
+        MULTI_CHAR('cont_zt1'), MULTI_CHAR('cont_zt2'), MULTI_CHAR('cont_zt3'),
+        MULTI_CHAR('cont_zt4'), MULTI_CHAR('cont_rt'),
+    };
+    static u64 const x_tag[] = {
+        MULTI_CHAR('cont_xt1'), MULTI_CHAR('cont_xt2'), MULTI_CHAR('cont_xt3'),
+        MULTI_CHAR('cont_xt4'), MULTI_CHAR('cont_xt5'),
+    };
+    static u64 const y_tag[] = {
+        MULTI_CHAR('cont_yt1'), MULTI_CHAR('cont_yt2'), MULTI_CHAR('cont_yt3'),
+        MULTI_CHAR('cont_yt4'), MULTI_CHAR('cont_yt5'),
+    };
+#endif
 
     for (int i = 0; i < 5; i++) {
         mpAText[i] = new CPaneMgr(mpScreen, a_tag[i], 0, NULL);
@@ -141,7 +244,7 @@ dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap* mp_heap) {
     field_0xa8 = 0;
     field_0x1e4 = 0;
     field_0x2fc = 0;
-    field_0x36c = 0;
+    field_0x36c = NULL;
 
     OS_REPORT("exit dMeter2Draw_c::dMeter2Draw_c(JKRExpHeap *mp_heap)\n");
 }
@@ -154,10 +257,26 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mpScreen;
     mpScreen = NULL;
 
+#if PLATFORM_WII
+    delete mpWiiScreen;
+    mpWiiScreen = NULL;
+
+    dCsr_mng_c::releaseObj(l_bloObj);
+    delete l_bloObj;
+    l_bloObj = NULL;
+
+    dCsr_mng_c::releaseCsr(l_bloCsr);
+    delete l_bloCsr;
+    l_bloCsr = NULL;
+
+    delete l_baseCsr;
+    l_baseCsr = NULL;
+#endif
+
     delete mpKanteraScreen;
     mpKanteraScreen = NULL;
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < KANTERA_METER_CNT; i++) {
         delete mpKanteraMeter[i];
         mpKanteraMeter[i] = NULL;
     }
@@ -177,14 +296,34 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mPikariBpk;
     mPikariBpk = NULL;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpAText); i++) {
         delete mpAText[i];
         mpAText[i] = NULL;
+
+#if PLATFORM_WII
+        delete field_0x10c_wii[i];
+        field_0x10c_wii[i] = NULL;
+#endif
 
         delete mpBText[i];
         mpBText[i] = NULL;
 
-        for (int j = 0; j < 3; j++) {
+#if PLATFORM_WII
+        if (field_0x104_wii != NULL) {
+            delete field_0x104_wii;
+            field_0x104_wii = NULL;
+        }
+
+        if (field_0x108_wii != NULL) {
+            delete field_0x108_wii;
+            field_0x108_wii = NULL;
+        }
+
+        delete field_0x120_wii[i];
+        field_0x120_wii[i] = NULL;
+#endif
+
+        for (int j = 0; j < ARRAY_SIZE(mpXYText[0]); j++) {
             delete mpXYText[i][j];
             mpXYText[i][j] = NULL;
         }
@@ -274,16 +413,16 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mpKeyParent;
     mpKeyParent = NULL;
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
+    for (int i = 0; i < ARRAY_SIZE(mpItemBTex); i++) {
+        for (int j = 0; j < ARRAY_SIZE(mpItemBTex[0]); j++) {
             heap->free(mpItemBTex[i][j]);
             mpItemBTex[i][j] = NULL;
         }
     }
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 2; k++) {
+    for (int i = 0; i < ARRAY_SIZE(mpItemXYTex); i++) {
+        for (int j = 0; j < ARRAY_SIZE(mpItemXYTex[0]); j++) {
+            for (int k = 0; k < ARRAY_SIZE(mpItemXYTex[0][0]); k++) {
                 heap->free(mpItemXYTex[i][j][k]);
                 mpItemXYTex[i][j][k] = NULL;
             }
@@ -294,7 +433,7 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     mpItemB = NULL;
     mpItemBPane = NULL;
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpItemXY); i++) {
         if (mpItemXY[i] != NULL) {
             delete mpItemXY[i];
             mpItemXY[i] = NULL;
@@ -311,7 +450,7 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mpLightB;
     mpLightB = NULL;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpLightXY); i++) {
         if (mpLightXY[i] != NULL) {
             delete mpLightXY[i];
             mpLightXY[i] = NULL;
@@ -324,7 +463,41 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mpBTextB;
     mpBTextB = NULL;
 
+#if PLATFORM_WII
     for (int i = 0; i < 3; i++) {
+        if (mpXYTextN[i] != NULL) {
+            delete mpXYTextN[i];
+            mpXYTextN[i] = NULL;
+        }
+    }
+
+    delete mpFATextN;
+    mpFATextN = NULL;
+
+    delete mpFA2TextN;
+    mpFA2TextN = NULL;
+
+    delete mpFBTextN;
+    mpFBTextN = NULL;
+
+    for (int i = 0; i < ARRAY_SIZE(mpTextXY); i++) {
+        delete mpTextXY[i];
+        mpTextXY[i] = NULL;
+    }
+
+    delete mpItemT1N;
+    mpItemT1N = NULL;
+
+    delete mpFJTextN;
+    mpFJTextN = NULL;
+
+    delete mpITextN;
+    mpITextN = NULL;
+
+    delete mpTextA;
+    mpTextA = NULL;
+#else
+    for (int i = 0; i < ARRAY_SIZE(mpTextXY); i++) {
         if (mpBTextXY[i] != NULL) {
             delete mpBTextXY[i];
             mpBTextXY[i] = NULL;
@@ -347,8 +520,9 @@ dMeter2Draw_c::~dMeter2Draw_c() {
 
     delete mpTextM;
     mpTextM = NULL;
+#endif
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpJujiI); i++) {
         if (mpJujiI[i] != NULL) {
             delete mpJujiI[i];
             mpJujiI[i] = NULL;
@@ -363,29 +537,116 @@ dMeter2Draw_c::~dMeter2Draw_c() {
     delete mpButtonParent;
     mpButtonParent = NULL;
 
+#if PLATFORM_WII
+    delete field_0x364_wii;
+    field_0x364_wii = NULL;
+#endif
+
     delete mpButtonA;
     mpButtonA = NULL;
 
     delete mpButtonB;
     mpButtonB = NULL;
 
+#if PLATFORM_WII
+    delete field_0x41c_wii;
+    field_0x41c_wii = NULL;
+
+    delete field_0x420_wii;
+    field_0x420_wii = NULL;
+#endif
+
     delete mpButtonMidona;
     mpButtonMidona = NULL;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpButtonXY); i++) {
         delete mpButtonXY[i];
         mpButtonXY[i] = NULL;
     }
 
-    if (mpUzu != NULL) {
-        delete mpUzu;
-        mpUzu = NULL;
+#if PLATFORM_WII
+    delete field_0x418_wii;
+    field_0x418_wii = NULL;
+#endif
+
+    if (mpJujiM[3] != NULL) {
+        delete mpJujiM[3];
+        mpJujiM[3] = NULL;
     }
 
-    delete mpButtonCrossParent;
-    mpButtonCrossParent = NULL;
+    delete mpTextB;
+    mpTextB = NULL;
 
-    for (int i = 0; i < 2; i++) {
+#if PLATFORM_WII
+    for (int i = 0; i < ARRAY_SIZE(field_0x134_wii); i++) {
+        delete field_0x134_wii[i];
+        field_0x134_wii[i] = NULL;
+    }
+#endif
+
+#if PLATFORM_WII
+    for (int i = 0; i < ARRAY_SIZE(field_0x524); i++) {
+        for (int j = 0; j < ARRAY_SIZE(field_0x524[0]); j++) {
+            delete field_0x524[i][j];
+            field_0x524[i][j] = NULL;
+        }
+    }
+
+    for (int i = 0; i < ARRAY_SIZE(field_0x370); i++) {
+        if (mpTextXY[i + 1] != NULL) {
+            delete mpTextXY[i + 1];
+            mpTextXY[i + 1] = NULL;
+        }
+        if (field_0x370[i] != NULL) {
+            delete field_0x370[i];
+            field_0x370[i] = NULL;
+        }
+    }
+
+    delete field_0x36c;
+    field_0x36c = NULL;
+#endif
+
+#if PLATFORM_WII
+    for (int i = 0; i < ARRAY_SIZE(field_0x530_wii); i++) {
+        if (field_0x530_wii[i] != NULL) {
+            delete field_0x530_wii[i];
+            field_0x530_wii[i] = NULL;
+        }
+
+        if (field_0x4c8[i] != NULL) {
+            delete field_0x4c8[i];
+            field_0x4c8[i] = NULL;
+        }
+    }
+#endif
+
+    //delete mpItemT1N;
+    //mpItemT1N = NULL;
+
+    //delete mpFJTextN;
+    //mpFJTextN = NULL;
+
+    //delete mpTextXY[1];
+    //mpTextXY[1] = NULL;
+
+    //for (int i = 0; i < ARRAY_SIZE(field_0x370); i++) {
+    //    delete field_0x370[i];
+    //    field_0x370[i] = NULL;
+    //}
+
+    //delete mpITextN;
+    //mpITextN = NULL;
+
+    //if (mpUzu != NULL) {
+    //    delete mpUzu;
+    //    mpUzu = NULL;
+    //}
+
+    //delete mpButtonCrossParent;
+    //mpButtonCrossParent = NULL;
+
+    for (int i = 0; i < ARRAY_SIZE(mpItemNumTex); i++) {
         for (int j = 0; j < 3; j++) {
             if (mpItemNumTex[i][j] != NULL) {
                 delete mpItemNumTex[i][j];
@@ -394,7 +655,7 @@ dMeter2Draw_c::~dMeter2Draw_c() {
         }
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < ARRAY_SIZE(field_0x9c); i++) {
         if (field_0x9c[i] != NULL) {
             delete field_0x9c[i];
             field_0x9c[i] = NULL;
@@ -405,6 +666,8 @@ dMeter2Draw_c::~dMeter2Draw_c() {
 void dMeter2Draw_c::init() {
     field_0x608 = 0.0f;
     field_0x60c = 0.0f;
+    field_0x6a4_wii = 0.0f;
+    field_0x6a8_wii = 0.0f;
 
     for (int i = 0; i < 3; i++) {
         field_0x620[i] = 0.0f;
@@ -419,7 +682,10 @@ void dMeter2Draw_c::init() {
 
     field_0x759 = 0;
     field_0x75a = 0;
-    for (int i = 0; i < 3; i++) {
+#if PLATFORM_WII
+    field_0x75b = 0;
+#endif
+    for (int i = 0; i < ARRAY_SIZE(field_0x75c); i++) {
         field_0x75c[i] = 0;
     }
 
@@ -440,6 +706,8 @@ void dMeter2Draw_c::init() {
     field_0x6e8 = 0.0f;
     field_0x6ec = 0.0f;
     field_0x6f0 = 0.0f;
+    field_0x790_wii = 0.0f;
+    field_0x794_wii = 0.0f;
     mParentScale = g_drawHIO.mParentScale;
     mParentAlpha = g_drawHIO.mParentAlpha;
     mButtonsPosX = 0.0f;
@@ -486,10 +754,10 @@ void dMeter2Draw_c::init() {
         mItemBBaseAlpha[i] = g_drawHIO.mItemBBaseAlpha[i];
         mButtonXItemBaseAlpha[i] = g_drawHIO.mButtonXItemBaseAlpha[i];
         mButtonYItemBaseAlpha[i] = g_drawHIO.mButtonYItemBaseAlpha[i];
-        field_0x82c[i] = g_drawHIO.field_0x298[i];
+        mButtonZWiiItemBaseAlpha[i] = g_drawHIO.mButtonZWiiItemBaseAlpha[i];
     }
 
-    mButtonZItemBaseAlpha = g_drawHIO.mButtonZItemBaseAlpha;
+    mButtonZGCNItemBaseAlpha = g_drawHIO.mButtonZGCNItemBaseAlpha;
     mButtonBaseAlpha = g_drawHIO.mButtonBaseAlpha;
     mButtonATextSpacing = g_drawHIO.mButtonATextSpacing;
     mButtonCrossAlpha = g_drawHIO.mButtonCrossAlpha;
@@ -531,7 +799,11 @@ void dMeter2Draw_c::init() {
     initRupeeKey();
     initButton();
     initButtonCross();
+#if PLATFORM_WII
+    initTouchSubMenu();
+#else
     field_0x772 = 0;
+#endif
 }
 
 void dMeter2Draw_c::exec(u32 i_status) {
@@ -599,7 +871,7 @@ void dMeter2Draw_c::draw() {
         }
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < KANTERA_METER_CNT; i++) {
         mpKanteraMeter[i]->drawSelf();
     }
 
@@ -620,10 +892,16 @@ void dMeter2Draw_c::draw() {
 
         for (int i = 0; i < 2; i++) {
             if (field_0x620[i] > 0.0f) {
-                drawPikari(mpBTextXY[i], &field_0x620[i], g_drawHIO.mButtonXYPikariScale,
-                           g_drawHIO.mButtonXYPikariFrontOuter, g_drawHIO.mButtonXYPikariFrontInner,
-                           g_drawHIO.mButtonXYPikariBackOuter, g_drawHIO.mButtonXYPikariBackInner,
-                           g_drawHIO.mButtonXYPikariAnimSpeed, field_0x75c[i]);
+                drawPikari(
+#if PLATFORM_WII
+                    mpItemXY[i],
+#else
+                    mpBTextXY[i],
+#endif
+                    &field_0x620[i], g_drawHIO.mButtonXYPikariScale,
+                    g_drawHIO.mButtonXYPikariFrontOuter, g_drawHIO.mButtonXYPikariFrontInner,
+                    g_drawHIO.mButtonXYPikariBackOuter, g_drawHIO.mButtonXYPikariBackInner,
+                    g_drawHIO.mButtonXYPikariAnimSpeed, field_0x75c[i]);
             }
         }
     }
@@ -899,10 +1177,20 @@ void dMeter2Draw_c::initLightDrop() {
         }
     }
 
+#if WIDESCREEN_SUPPORT
+    f32 vesselPosX;
+    f32 vesselPosY;
+    if (mDoGph_gInf_c::mWide == 1) {
+        vesselPosX = g_drawHIO.mLightDrop.mVesselPosX;
+        vesselPosY = g_drawHIO.mLightDrop.mVesselPosY;
+    } else {
+        vesselPosX = g_drawHIO.mLightDrop.mVesselPosX_4x3;
+        vesselPosY = g_drawHIO.mLightDrop.mVesselPosY_4x3;
+    }
+#endif
     drawLightDrop(dComIfGs_getLightDropNum(dComIfGp_getStartStageDarkArea()),
-                  dComIfGp_getNeedLightDropNum(), g_drawHIO.mLightDrop.mVesselPosX,
-                  g_drawHIO.mLightDrop.mVesselPosY, g_drawHIO.mLightDrop.mVesselScale,
-                  g_drawHIO.mLightDrop.mVesselAlpha[0], 0);
+                  dComIfGp_getNeedLightDropNum(), vesselPosX, vesselPosY,
+                  g_drawHIO.mLightDrop.mVesselScale, g_drawHIO.mLightDrop.mVesselAlpha[0], 0);
     setAlphaLightDropChange(true);
 }
 
@@ -958,6 +1246,12 @@ void dMeter2Draw_c::initRupeeKey() {
 
 void dMeter2Draw_c::initButton() {
     field_0x761 = 1;
+#if PLATFORM_WII
+    field_0x818_wii = 1;
+    field_0x819_wii = 1;
+    field_0x81a_wii = 1;
+    field_0x81b_wii = 1;
+#endif
     field_0x762 = 1;
     field_0x763 = 1;
     field_0x764 = 1;
@@ -976,12 +1270,12 @@ void dMeter2Draw_c::initButton() {
         }
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpItemXYTex); i++) {
         field_0x773[i] = dMeter2Info_isDirectUseItem(i);
         field_0x76c[i] = 0;
 
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 2; k++) {
+        for (int j = 0; j < ARRAY_SIZE(mpItemXYTex[0]); j++) {
+            for (int k = 0; k < ARRAY_SIZE(mpItemXYTex[0][0]); k++) {
                 mpItemXYTex[i][j][k] = (ResTIMG*)heap->alloc(0xC00, 0x20);
                 JUT_ASSERT(0, mpItemXYTex[i][j][k] != NULL);
             }
@@ -995,6 +1289,9 @@ void dMeter2Draw_c::initButton() {
 
     field_0x728 = 1.0f;
     field_0x734 = 1.0f;
+#if PLATFORM_WII
+    g_meter2_info.mMeterItemPanePtr[3] = mpItemB;
+#endif
     field_0x76b = 0;
     mButtonBItem = 0;
 
@@ -1020,8 +1317,16 @@ void dMeter2Draw_c::initButton() {
     mpItemXY[1]->getPanePtr()->setBasePosition(J2DBasePosition_4);
     dMeter2Info_setMeterItemPanePtr(1, mpItemXY[1]);
 
+#if PLATFORM_WII
+    mpItemXY[2] = new CPaneMgr(mpScreen, MULTI_CHAR('j_itm_p'), 0, NULL);
+    mpItemXY[2]->getPanePtr()->setBasePosition(J2DBasePosition_4);
+    dMeter2Info_setMeterItemPanePtr(2, mpItemXY[2]);
+
+    mpItemXY[3] = NULL;
+#else
     mpItemR = NULL;
     mpBTextA = NULL;
+#endif
 
     mpItemXYPane[0] = new J2DPicture(
         MULTI_CHAR('x_itm_pp'),
@@ -1040,8 +1345,18 @@ void dMeter2Draw_c::initButton() {
     mpItemXY[1]->getPanePtr()->appendChild(mpItemXYPane[1]);
 
     mpItemR = new CPaneMgr(mpScreen, MULTI_CHAR('r_itm_p'), 0, NULL);
-    JUT_ASSERT(0, mpItemR != NULL);
+    JUT_ASSERT(0, field_0x3a0_wii != NULL);
     mpItemR->getPanePtr()->setBasePosition(J2DBasePosition_4);
+
+#if PLATFORM_WII
+    mpItemXYPane[2] = new J2DPicture(
+        MULTI_CHAR('j_itm_pp'),
+        JGeometry::TBox2<f32>(0.0f, 0.0f, mpItemXY[2]->getInitSizeX(), mpItemXY[2]->getInitSizeY()),
+        static_cast<J2DPicture*>(mpItemXY[2]->getPanePtr())->getTexture(0)->getTexInfo(), NULL);
+    JUT_ASSERT(0, mpItemXY[2] != NULL);
+    mpItemXYPane[2]->setBasePosition(J2DBasePosition_4);
+    mpItemXY[2]->getPanePtr()->appendChild(mpItemXYPane[2]);
+#else
     dMeter2Info_setMeterItemPanePtr(2, mpItemR);
 
     mpItemXYPane[2] = new J2DPicture(
@@ -1051,12 +1366,17 @@ void dMeter2Draw_c::initButton() {
     JUT_ASSERT(0, mpItemXYPane[2] != NULL);
     mpItemXYPane[2]->setBasePosition(J2DBasePosition_4);
     mpItemR->getPanePtr()->appendChild(mpItemXYPane[2]);
+#endif
 
     mpLightB = new CPaneMgr(mpScreen, MULTI_CHAR('b_light'), 0, NULL);
     JUT_ASSERT(0, mpLightB != NULL);
     mpLightB->getPanePtr()->setBasePosition(J2DBasePosition_4);
     field_0x72c = 1.0f;
+#if PLATFORM_WII
+    mpLightB->show();
+#else
     mpLightB->hide();
+#endif
 
     mpLightXY[0] = new CPaneMgr(mpScreen, MULTI_CHAR('x_light'), 0, NULL);
     JUT_ASSERT(0, mpLightXY[0] != NULL);
@@ -1068,10 +1388,19 @@ void dMeter2Draw_c::initButton() {
     mpLightXY[1]->getPanePtr()->setBasePosition(J2DBasePosition_4);
     mpLightXY[1]->hide();
 
+#if PLATFORM_WII
+    mpLightXY[2] = new CPaneMgr(mpScreen, MULTI_CHAR('j_light'), 0, NULL);
+#else
     mpLightXY[2] = new CPaneMgr(mpScreen, MULTI_CHAR('r_light'), 0, NULL);
+#endif
     JUT_ASSERT(0, mpLightXY[2] != NULL);
     mpLightXY[2]->getPanePtr()->setBasePosition(J2DBasePosition_4);
     mpLightXY[2]->hide();
+
+#if PLATFORM_WII
+    mpLightXY[3] = NULL;
+    mpScreen->search(MULTI_CHAR('r_light'))->mVisible = false;
+#endif
 
     mpBTextA = new CPaneMgr(mpScreen, MULTI_CHAR('b_text_a'), 0, NULL);
     JUT_ASSERT(0, mpBTextA != NULL);
@@ -1079,6 +1408,54 @@ void dMeter2Draw_c::initButton() {
     mpBTextB = new CPaneMgr(mpScreen, MULTI_CHAR('b_text_b'), 0, NULL);
     JUT_ASSERT(0, mpBTextB != NULL);
 
+#if PLATFORM_WII
+    mpXYTextN[0] = new CPaneMgr(mpWiiScreen, MULTI_CHAR('x_text_n'), 0, NULL);
+    JUT_ASSERT(0, mpXYTextN[0] != NULL);
+
+    mpXYTextN[1] = new CPaneMgr(mpWiiScreen, MULTI_CHAR('y_text_n'), 0, NULL);
+    JUT_ASSERT(0, mpXYTextN[1] != NULL);
+
+    mpJTextN = new CPaneMgr(mpWiiScreen, MULTI_CHAR('j_text_n'), 0, NULL);
+    JUT_ASSERT(0, mpJTextN != NULL);
+
+    mpFATextN = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fa_tex_n'), 0, NULL);
+    JUT_ASSERT(0, mpFaTextN != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('a_text_n'))->hide();
+
+    mpFA2TextN = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fa2textn'), 0, NULL);
+    JUT_ASSERT(0, mpFA2TextN != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('a2_tex_n'))->hide();
+
+    mpFBTextN = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fb_textn'), 0, NULL);
+    JUT_ASSERT(0, mpFBTextN != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('b_text_n'))->hide();
+
+    mpTextXY[2] = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fz_textn'), 0, NULL);
+    JUT_ASSERT(0, mpTextXY[2] != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('z_text_n'))->hide();
+
+    mpTextXY[0] = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fx_textn'), 0, NULL);
+    JUT_ASSERT(0, mpTextXY[0] != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('x_text_n'))->hide();
+
+    mpTextXY[1] = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fy_textn'), 0, NULL);
+    JUT_ASSERT(0, mpTextXY[1] != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('y_text_n'))->hide();
+    mpItemT1N = new CPaneMgr(mpScreen, MULTI_CHAR('item_t1n'), 2, NULL);
+    JUT_ASSERT(0, mpItemT1N != NULL);
+    mpItemT1N->hide();
+
+    mpFJTextN = new CPaneMgr(mpWiiScreen, MULTI_CHAR('fj_textn'), 2, NULL);
+    JUT_ASSERT(0, mpFJTextN != NULL);
+
+    mpWiiScreen->search(MULTI_CHAR('j_text_n'))->hide();
+#else
     mpBTextXY[0] = new CPaneMgr(mpScreen, MULTI_CHAR('b_text_x'), 0, NULL);
     JUT_ASSERT(0, mpBTextXY[0] != NULL);
 
@@ -1101,6 +1478,7 @@ void dMeter2Draw_c::initButton() {
 
     mpTextXY[1] = new CPaneMgr(mpScreen, MULTI_CHAR('y_text_n'), 0, NULL);
     JUT_ASSERT(0, mpTextXY[1] != NULL);
+#endif
 
     mpTextI = new CPaneMgr(mpScreen, MULTI_CHAR('i_text_n'), 2, NULL);
     JUT_ASSERT(0, mpTextI != NULL);
@@ -1108,18 +1486,28 @@ void dMeter2Draw_c::initButton() {
     mpTextM = new CPaneMgr(mpScreen, MULTI_CHAR('m_text_n'), 2, NULL);
     JUT_ASSERT(0, mpTextM != NULL);
 
-    static u64 const juji_i_tag[] = {MULTI_CHAR('ju_ring4'), MULTI_CHAR('yaji_00'), MULTI_CHAR('yaji_01'), MULTI_CHAR('ju_ring2'), MULTI_CHAR('ju_ring4')};
-    static u64 const juji_m_tag[] = {MULTI_CHAR('ju_ring3'), MULTI_CHAR('yaji_02'), MULTI_CHAR('yaji_03'), MULTI_CHAR('ju_ring3'), 0};
+    static u64 const juji_i_tag[] = {
+        MULTI_CHAR('ju_ring4'), MULTI_CHAR('yaji_00'), MULTI_CHAR('yaji_01'),
+#if !PLATFORM_WII
+        MULTI_CHAR('ju_ring2'), MULTI_CHAR('ju_ring4'),
+#endif
+    };
+    static u64 const juji_m_tag[] = {
+        MULTI_CHAR('ju_ring3'), MULTI_CHAR('yaji_02'), MULTI_CHAR('yaji_03'),
+#if !PLATFORM_WII
+        MULTI_CHAR('ju_ring3'), 0
+#endif
+    };
 
-    for (int i = 0; i < 5; i++) {
-        if (juji_i_tag[i] != 0) {
+    for (int i = 0; i < ARRAY_SIZE(mpJujiI); i++) {
+        if (PLATFORM_WII || juji_i_tag[i] != 0) {
             mpJujiI[i] = new CPaneMgr(mpScreen, juji_i_tag[i], 0, NULL);
             JUT_ASSERT(0, mpJujiI[i] != NULL);
         } else {
             mpJujiI[i] = NULL;
         }
 
-        if (juji_m_tag[i] != 0) {
+        if (PLATFORM_WII || juji_m_tag[i] != 0) {
             mpJujiM[i] = new CPaneMgr(mpScreen, juji_m_tag[i], 0, NULL);
             JUT_ASSERT(0, mpJujiM[i] != NULL);
         } else {
@@ -1131,6 +1519,9 @@ void dMeter2Draw_c::initButton() {
     mpTextXY[1]->hide();
 
     mpButtonParent = new CPaneMgr(mpScreen, MULTI_CHAR('cont_n'), 2, NULL);
+#if PLATFORM_WII
+    field_0x364_wii = new CPaneMgr(mpWiiScreen, MULTI_CHAR('cont_n'), 2, NULL);
+#endif
     JUT_ASSERT(0, mpButtonParent != NULL);
 
     mpButtonA = new CPaneMgr(mpScreen, MULTI_CHAR('abtn_n'), 2, NULL);
@@ -1138,7 +1529,16 @@ void dMeter2Draw_c::initButton() {
 
     mpButtonB = new CPaneMgr(mpScreen, MULTI_CHAR('bbtn_n'), 2, NULL);
     JUT_ASSERT(0, mpButtonB != NULL);
+
     field_0x730 = 1.0f;
+
+#if PLATFORM_WII
+    field_0x41c_wii = new CPaneMgr(mpWiiScreen, MULTI_CHAR('abtn_n'), 2, NULL);
+    JUT_ASSERT(0, field_0x41c_wii != NULL);
+
+    field_0x420_wii = new CPaneMgr(mpWiiScreen, MULTI_CHAR('bbtn_n'), 2, NULL);
+    JUT_ASSERT(0, field_0x420_wii != NULL);
+#endif
 
     mpButtonMidona = new CPaneMgr(mpScreen, MULTI_CHAR('midona_n'), 2, NULL);
     JUT_ASSERT(0, mpButtonMidona != NULL);
@@ -1147,39 +1547,87 @@ void dMeter2Draw_c::initButton() {
     field_0x738 = 0.0f;
     field_0x740 = 0;
 
+#if PLATFORM_WII
+    ((J2DPicture*)mpScreen->search('midona'))->setMirror(J2DMirror_X);
+#endif
+
     mpButtonXY[0] = new CPaneMgr(mpScreen, MULTI_CHAR('xbtn_n'), 2, NULL);
     JUT_ASSERT(0, mpButtonXY[0] != NULL);
 
     mpButtonXY[1] = new CPaneMgr(mpScreen, MULTI_CHAR('ybtn_n'), 2, NULL);
     JUT_ASSERT(0, mpButtonXY[1] != NULL);
 
+#if PLATFORM_WII
+    mpButtonXY[2] = new CPaneMgr(mpScreen, MULTI_CHAR('jbtn_n'), 2, NULL);
+    JUT_ASSERT(0, mpButtonXY[2] != NULL);
+
+    field_0x418_wii = new CPaneMgr(mpWiiScreen, MULTI_CHAR('jbtn_n'), 2, NULL);
+    JUT_ASSERT(0, field_0x418_wii != NULL);
+
+    field_0x52c_wii = NULL;
+#else
     mpButtonXY[2] = new CPaneMgr(mpScreen, MULTI_CHAR('zbtn_n'), 2, NULL);
     JUT_ASSERT(0, mpButtonXY[2] != NULL);
 
     mpUzu = new CPaneMgrAlpha(mpScreen, MULTI_CHAR('uzu_n'), 2, NULL);
     JUT_ASSERT(0, mpUzu != NULL);
+#endif
 
     ResTIMG* timg = (ResTIMG*)dComIfGp_getMain2DArchive()->getResource(
         'TIMG', dMeter2Info_getNumberTextureName(0));
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < ARRAY_SIZE(mpItemNumTex); i++) {
+        for (int j = 0; j < ARRAY_SIZE(mpItemNumTex[0]); j++) {
             mpItemNumTex[i][j] = new J2DPicture(timg);
             JUT_ASSERT(0, mpItemNumTex[i][j] != NULL);
         }
     }
 
+#if PLATFORM_WII
+    static const u64 tag_tri[] = {
+        MULTI_CHAR('t_r_n'), MULTI_CHAR('t_l_n'), MULTI_CHAR('t_un_n'), MULTI_CHAR('t_up_n')
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(field_0x134_wii); i++) {
+        field_0x134_wii[i] = new CPaneMgr(mpScreen, tag_tri[i], 2, NULL);
+        JUT_ASSERT(0, field_0x134_wii[i] != NULL);
+        field_0x798_wii[i] = 0.0f;
+    }
+
+    field_0x808_wii = 0;
+#endif
+
+#if PLATFORM_WII
+    changeTextureItemB(dItemNo_BOW_e);
+#else
     mButtonBItem = dItemNo_SWORD_e;
     changeTextureItemB(mButtonBItem);
+#endif
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
-            field_0x524[i][j] = 0;
+    static const u64 move_itm_tag[] = {MULTI_CHAR('moveitm0'), MULTI_CHAR('moveitm1')};
+
+    for (int i = 0; i < ARRAY_SIZE(field_0x524); i++) {
+        for (int j = 0; j < ARRAY_SIZE(field_0x524[0]); j++) {
+#if PLATFORM_WII
+            field_0x524[i][j] = new J2DPicture(
+                move_itm_tag[i],
+                JGeometry::TBox2<f32>(0.0f, 0.0f, mpItemB->getInitSizeX(), mpItemB->getInitSizeY()),
+                static_cast<J2DPicture*>(mpItemB->getPanePtr())->getTexture(0)->getTexInfo(), NULL);
+            JUT_ASSERT(0, field_0x524[i][j] != NULL);
+            field_0x524[i][j]->setBasePosition(J2DBasePosition_4);
+#else
+            field_0x524[i][j] = NULL;
+#endif
         }
     }
 
-    for (int i = 0; i < 3; i++) {
+#if PLATFORM_WII
+    field_0x773[3] = 0;
+    field_0x830_wii = 0;
+#else
+    for (int i = 0; i < ARRAY_SIZE(field_0x9c); i++) {
         field_0x9c[i] = NULL;
     }
+#endif
 
     field_0x560 = 0.0f;
     field_0x55c = 0.0f;
@@ -1193,8 +1641,20 @@ void dMeter2Draw_c::initButton() {
     field_0x580 = 0.0f;
     field_0x754 = 0;
 
+#if PLATFORM_WII
+    ResTIMG* timg2 = getNumberTexture(0);
+    for (int i = 0; i < 3; i++) {
+        field_0x9c[i] = new J2DPicture(timg2);
+    }
+#endif
+
     drawButtonXY(0, dComIfGp_getSelectItem(0), dComIfGp_getXStatus(), true, false);
+#if PLATFORM_WII
     drawButtonXY(1, dComIfGp_getSelectItem(1), dComIfGp_getYStatus(), true, false);
+    drawButtonXY(2, dComIfGp_getSelectItem(2), 0, true, false);
+#else
+    drawButtonXY(1, dComIfGp_getSelectItem(1), dComIfGp_getYStatus(), true, false);
+#endif
     drawButtonA(dComIfGp_getDoStatus(), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false, false);
     drawButtonB(dComIfGp_getAStatus(), true, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false);
     drawButtonR(dComIfGs_getCollectSmell(), dComIfGp_getRStatus(), true, false);
@@ -1205,6 +1665,9 @@ void dMeter2Draw_c::initButton() {
 
     setAlphaButtonChange(true);
     mpButtonParent->setAlphaRate(0.0f);
+#if PLATFORM_WII
+    field_0x364_wii->setAlphaRate(0.0f);
+#endif
 }
 
 void dMeter2Draw_c::initButtonCross() {
@@ -1261,6 +1724,10 @@ void dMeter2Draw_c::initButtonCross() {
     drawButtonCross(g_drawHIO.mButtonCrossOFFPosX, g_drawHIO.mButtonCrossOFFPosY);
 }
 
+void dMeter2Draw_c::initTouchSubMenu() {
+    FORCE_DONT_INLINE
+}
+
 void dMeter2Draw_c::playPikariBckAnimation(f32 i_frame) {
     mpPikariParent->getPanePtr()->setAnimation(mPikariBck);
     mPikariBck->setFrame(i_frame);
@@ -1312,6 +1779,9 @@ void dMeter2Draw_c::drawPikari(f32 i_posX, f32 i_posY, f32* i_framep, f32 i_scal
                                JUtility::TColor i_moyabsBlack, JUtility::TColor i_moyabsWhite,
                                f32 param_8, u8 param_9) {
     f32 var_f31 = 28.0f;
+#if WIDESCREEN_SUPPORT
+    dMeter2Info_getWide2DPosX(&var_f31);
+#endif
 
     if (param_9 == 4) {
         var_f31 = 24.0f;
@@ -2290,7 +2760,7 @@ void dMeter2Draw_c::drawButtonB(u8 i_action, bool param_1, f32 i_posX, f32 i_pos
 
     JUT_ASSERT(0, strlen(mp_string) < (64));
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpBText); i++) {
         strcpy(static_cast<J2DTextBox*>(mpBText[i]->getPanePtr())->getStringPtr(), mp_string);
     }
 
@@ -2345,7 +2815,11 @@ void dMeter2Draw_c::drawButtonB(u8 i_action, bool param_1, f32 i_posX, f32 i_pos
 
 void dMeter2Draw_c::drawButtonR(u8 unused0, u8 i_action, bool unused1, bool unused2) {
     mpScreen->search(MULTI_CHAR('item_r_n'))->hide();
+#if PLATFORM_WII
+    mpTextXY[2]->hide();
+#else
     mpTextXY[2]->show();
+#endif
 
     getActionString(i_action, 1, &field_0x768[2]);
     if (dComIfGp_isRSetFlag(2) || dComIfGp_isRSetFlag(4)) {
@@ -2377,6 +2851,7 @@ void dMeter2Draw_c::drawButtonZ(u8 i_action) {
         strcpy(static_cast<J2DTextBox*>(mpXYText[i][2]->getPanePtr())->getStringPtr(), mp_string);
     }
 
+#if !PLATFORM_WII
     mpButtonXY[2]->scale(g_drawHIO.mButtonZScale, g_drawHIO.mButtonZScale);
     mpButtonXY[2]->paneTrans(g_drawHIO.mButtonZPosX, g_drawHIO.mButtonZPosY);
 
@@ -2384,8 +2859,9 @@ void dMeter2Draw_c::drawButtonZ(u8 i_action) {
     mpItemR->paneTrans(g_drawHIO.mButtonZItemPosX + field_0x6ac[2],
                        g_drawHIO.mButtonZItemPosY + field_0x6b8[2]);
 
-    mpLightXY[2]->scale(g_drawHIO.mButtonZItemBaseScale, g_drawHIO.mButtonZItemBaseScale);
-    mpLightXY[2]->paneTrans(g_drawHIO.mButtonZItemBasePosX, g_drawHIO.mButtonZItemBasePosY);
+    mpLightXY[2]->scale(g_drawHIO.mButtonZGCNItemBaseScale, g_drawHIO.mButtonZGCNItemBaseScale);
+    mpLightXY[2]->paneTrans(g_drawHIO.mButtonZGCNItemBasePosX, g_drawHIO.mButtonZGCNItemBasePosY);
+#endif
 
     mpTextXY[2]->scale(g_drawHIO.mButtonZFontScale, g_drawHIO.mButtonZFontScale);
     mpTextXY[2]->paneTrans(g_drawHIO.mButtonZFontPosX, g_drawHIO.mButtonZFontPosY);
@@ -2431,7 +2907,11 @@ void dMeter2Draw_c::drawButtonBin(u8 i_action) {
 void dMeter2Draw_c::drawButtonXY(int i_no, u8 i_itemNo, u8 i_action, bool param_3, bool param_4) {
     JUT_ASSERT(0, i_no < SELECT_MAX_e);
 
+#if PLATFORM_WII
+    static u64 const tag[] = {MULTI_CHAR('x_itm_p'), MULTI_CHAR('y_itm_p')};
+#else
     static u64 const tag[] = {MULTI_CHAR('item_x_n'), MULTI_CHAR('item_y_n')};
+#endif
 
     if (!param_3) {
         mpScreen->search(tag[i_no])->hide();
@@ -2464,10 +2944,15 @@ void dMeter2Draw_c::drawButtonXY(int i_no, u8 i_itemNo, u8 i_action, bool param_
             }
         }
 
-        if (*mp_string != 0) {
-            mpTextXY[i_no]->show();
-        } else {
-            mpTextXY[i_no]->hide();
+#if PLATFORM_WII
+        if (i_no != SELECT_Z_e)
+#endif
+        {
+            if (*mp_string != 0) {
+                mpTextXY[i_no]->show();
+            } else {
+                mpTextXY[i_no]->hide();
+            }
         }
 
         JUT_ASSERT(0, strlen(mp_string) < (64));
@@ -2484,9 +2969,20 @@ void dMeter2Draw_c::drawButtonXY(int i_no, u8 i_itemNo, u8 i_action, bool param_
             mpTextXY[i_no]->scale(g_drawHIO.mButtonXYTextScale, g_drawHIO.mButtonXYTextScale);
             mpTextXY[i_no]->paneTrans(g_drawHIO.mButtonXYTextPosX, g_drawHIO.mButtonXYTextPosY);
         }
+#if PLATFORM_WII
+        else if (i_no == SELECT_Z_e) {
+            mpFJTextN->scale(g_drawHIO.mButtonZTextScale, g_drawHIO.mButtonZTextScale);
+            mpFJTextN->paneTrans(g_drawHIO.mButtonZTextPosX, g_drawHIO.mButtonZTextPosY);
+        }
+#endif
     } else {
         mpScreen->search(tag[i_no])->show();
-        mpTextXY[i_no]->hide();
+#if PLATFORM_WII
+        if (i_no != SELECT_Z_e)
+#endif
+        {
+            mpTextXY[i_no]->hide();
+        }
 
         int var_r29;
         if (i_itemNo == dItemNo_NONE_e || i_itemNo == 0) {
@@ -2510,9 +3006,10 @@ void dMeter2Draw_c::drawButtonXY(int i_no, u8 i_itemNo, u8 i_action, bool param_
             break;
         }
 
+        f32 rotation = mItemParams[i_no].rotation;
         mpItemXY[i_no]->getPanePtr()->rotate(mpItemXY[i_no]->getSizeX() * 0.5f,
                                              mpItemXY[i_no]->getSizeY() * 0.5f, ROTATE_Z,
-                                             mItemParams[i_no].rotation);
+                                             rotation);
 
         if (i_no == SELECT_X_e) {
             mpButtonXY[0]->scale(g_drawHIO.mButtonXScale, g_drawHIO.mButtonXScale);
@@ -2571,6 +3068,42 @@ void dMeter2Draw_c::drawButtonXY(int i_no, u8 i_itemNo, u8 i_action, bool param_
             mpTextXY[i_no]->scale(g_drawHIO.mButtonXYTextScale, g_drawHIO.mButtonXYTextScale);
             mpTextXY[i_no]->paneTrans(g_drawHIO.mButtonXYTextPosX, g_drawHIO.mButtonXYTextPosY);
         }
+#if PLATFORM_WII
+        else if (i_no == SELECT_Z_e) {
+            mpButtonXY[2]->scale(g_drawHIO.field_0x164, g_drawHIO.field_0x164);
+            mpButtonXY[2]->paneTrans(g_drawHIO.field_0x16c, g_drawHIO.field_0x170);
+            field_0x418_wii->scale(g_drawHIO.field_0x164, g_drawHIO.field_0x164);
+            field_0x418_wii->paneTrans(g_drawHIO.field_0x16c, g_drawHIO.field_0x170);
+            f32 temp_f31 = mItemParams[SELECT_Z_e].scale;
+
+            if (field_0x773[2] != dMeter2Info_isDirectUseItem(2)) {
+                field_0x773[2] = dMeter2Info_isDirectUseItem(2);
+
+                if (dMeter2Info_isDirectUseItem(2) && field_0x610[2] == 0.0f) {
+                    field_0x610[2] = 18.0f - g_drawHIO.field_0x4e0;
+                }
+            }
+
+            dMeter2Info_isDirectUseItem(2);
+
+            temp_f31 *= g_drawHIO.field_0x54c;
+            mpItemXY[2]->scale(temp_f31, temp_f31);
+            mpItemXY[2]->paneTrans(mItemParams[SELECT_Z_e].pos_x + field_0x6ac[2],
+                                   mItemParams[SELECT_Z_e].pos_y + field_0x6b8[2]);
+
+            mpLightXY[2]->scale(g_drawHIO.mButtonZWiiItemBaseScale[var_r29],
+                                g_drawHIO.mButtonZWiiItemBaseScale[var_r29]);
+            mpLightXY[2]->paneTrans(g_drawHIO.mButtonZWiiItemBasePosX[var_r29],
+                                    g_drawHIO.mButtonZWiiItemBasePosY[var_r29]);
+            mpLightXY[2]->setAlphaRate(mButtonZWiiItemBaseAlpha[var_r29] * field_0x7f0);
+
+            mpItemT1N->scale(g_drawHIO.field_0x304, g_drawHIO.field_0x304);
+            mpItemT1N->paneTrans(g_drawHIO.field_0x308, g_drawHIO.field_0x30c);
+
+            mpFJTextN->scale(g_drawHIO.mButtonZTextScale, g_drawHIO.mButtonZTextScale);
+            mpFJTextN->paneTrans(g_drawHIO.mButtonZTextPosX, g_drawHIO.mButtonZTextPosY);
+        }
+#endif
     }
 }
 
@@ -2643,15 +3176,27 @@ void dMeter2Draw_c::setAlphaButtonCrossItemAnimeMax() {
 }
 
 void dMeter2Draw_c::setAlphaButtonCrossMapAnimeMin() {
+#if PLATFORM_WII
+    if (mpTextA->getAlphaRate() != 0.0f) {
+        mpTextA->setAlphaRate(g_drawHIO.mParentAlpha * g_drawHIO.mButtonCrossMAPAlpha);
+        setAlphaAnimeMin(mpTextA, 5);
+    }
+#else
     if (mpTextM->getAlphaRate() != 0.0f) {
         mpTextM->setAlphaRate(g_drawHIO.mParentAlpha * g_drawHIO.mButtonCrossMAPAlpha);
         setAlphaAnimeMin(mpTextM, 5);
     }
+#endif
 
-    for (int i = 0; i < 5; i++) {
-        if (mpJujiM[i] != NULL && mpJujiM[i]->getAlphaRate() != 0.0f) {
-            mpJujiM[i]->setAlphaRate(g_drawHIO.mParentAlpha);
-            setAlphaAnimeMin(mpJujiM[i], 5);
+    for (int i = 0; i < ARRAY_SIZE(mpJujiM); i++) {
+#if !PLATFORM_WII
+        if (mpJujiM[i] != NULL)
+#endif
+        {
+            if (mpJujiM[i]->getAlphaRate() != 0.0f) {
+                mpJujiM[i]->setAlphaRate(g_drawHIO.mParentAlpha);
+                setAlphaAnimeMin(mpJujiM[i], 5);
+            }
         }
     }
 }
@@ -2746,8 +3291,8 @@ void dMeter2Draw_c::setAlphaButtonChange(bool param_0) {
         set_buttonYItem = true;
     }
 
-    if (mButtonZItemBaseAlpha != g_drawHIO.mButtonZItemBaseAlpha || param_0) {
-        mButtonZItemBaseAlpha = g_drawHIO.mButtonZItemBaseAlpha;
+    if (mButtonZGCNItemBaseAlpha != g_drawHIO.mButtonZGCNItemBaseAlpha || param_0) {
+        mButtonZGCNItemBaseAlpha = g_drawHIO.mButtonZGCNItemBaseAlpha;
         set_buttonZItem = true;
     }
 
@@ -2789,11 +3334,11 @@ void dMeter2Draw_c::setAlphaButtonChange(bool param_0) {
     }
 
     if (set_parent || param_0) {
-        mpLightXY[2]->setAlphaRate(field_0x82c[sp44[2]] * field_0x7f0);
+        mpLightXY[2]->setAlphaRate(mButtonZWiiItemBaseAlpha[sp44[2]] * field_0x7f0);
     }
 
     if (set_parent || set_buttonZItem || param_0) {
-        mpLightXY[2]->setAlphaRate(mButtonZItemBaseAlpha * field_0x7f0);
+        mpLightXY[2]->setAlphaRate(mButtonZGCNItemBaseAlpha * field_0x7f0);
     }
 
     if (mpUzu != NULL && (set_parent || set_buttonBase || param_0)) {
@@ -2944,7 +3489,7 @@ void dMeter2Draw_c::setAlphaButtonBAnimeMin() {
         setAlphaAnimeMin(mpItemB, 5);
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < ARRAY_SIZE(mpBText); i++) {
         if (mpBText[i]->getAlphaRate() != 0.0f) {
             mpBText[i]->setAlphaRate(g_drawHIO.mParentAlpha * g_drawHIO.mMainHUDButtonsAlpha);
             setAlphaAnimeMin(mpBText[i], 5);
@@ -3033,7 +3578,7 @@ void dMeter2Draw_c::setButtonIconBAlpha(u8 unused0, u32 unused1, bool param_2) {
         mpLightB->setAlpha(var_r26 * temp_f31);
         mpButtonB->setAlpha(var_r27 * temp_f31);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < ARRAY_SIZE(mpBText); i++) {
             u8 alpha = mpBText[i]->getInitAlpha();
             if (!dMeter2Info_isUseButton(2) && !dMeter2Info_isSub2DStatus(1)) {
                 alpha = (f32)alpha * ((f32)g_drawHIO.field_0x42c / 255.0f);
@@ -3273,7 +3818,9 @@ char* dMeter2Draw_c::getActionString(u8 i_action, u8 i_type, u8* param_2) {
 void dMeter2Draw_c::changeTextureItemB(u8 i_itemNo) {
     int var_r31 = 0;
     if (i_itemNo == dItemNo_LURE_ROD_e) {
+#if !PLATFORM_WII
         var_r31 = 2;
+#endif
     } else if (i_itemNo == dItemNo_SWORD_e || i_itemNo == dItemNo_MASTER_SWORD_e || i_itemNo == dItemNo_WOOD_STICK_e ||
                i_itemNo == dItemNo_LIGHT_SWORD_e)
     {
