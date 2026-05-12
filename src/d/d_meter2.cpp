@@ -180,7 +180,7 @@ int dMeter2_c::_create() {
     mNunCStatus = dComIfGp_getNunCStatus();
     mBottleStatus = dComIfGp_getBottleStatus();
 
-    field_0x1ac = dMeter2Info_isUseButton(16);
+    field_0x1ac = dMeter2Info_isUseButton(METER2_USEBUTTON_C);
     field_0x19a = 0;
 
     mpMeterDraw = new dMeter2Draw_c(mpHeap);
@@ -1757,7 +1757,8 @@ void dMeter2_c::moveButtonC() {
         dComIfGp_setCStickStatusForce(0, 0, 0);
     }
 
-    if (mCStickStatus == dComIfGp_getCStickStatus() && field_0x1ac == dMeter2Info_isUseButton(0x10))
+    if (mCStickStatus == dComIfGp_getCStickStatus() &&
+        field_0x1ac == dMeter2Info_isUseButton(METER2_USEBUTTON_C))
     {
         if ((!mpMeterDraw->isEmphasisC() || dComIfGp_isCStickSetFlag(2)) &&
             (mpMeterDraw->isEmphasisC() || !dComIfGp_isCStickSetFlag(2)) &&
@@ -1769,7 +1770,7 @@ void dMeter2_c::moveButtonC() {
 
     field_0x19a = mpMeterDraw->getButtonTimer();
     mCStickStatus = dComIfGp_getCStickStatus();
-    field_0x1ac = dMeter2Info_isUseButton(0x10);
+    field_0x1ac = dMeter2Info_isUseButton(METER2_USEBUTTON_C);
     mpMeterDraw->drawButtonC(mCStickStatus, field_0x128 == 0);
 }
 

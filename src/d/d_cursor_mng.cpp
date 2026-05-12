@@ -21,10 +21,10 @@ void dCsr_mng_c::update_(void) {
 
     if (is_csr_on == 0) {
         mDoGph_gInf_c::entryCsr(NULL);
-        node_c* cur_node = m_csr_list.m_root;
+        csr_c* cur_node = (csr_c*)m_csr_list.m_root;
         while (cur_node != NULL) {
-            cur_node->m_pointed_obj = 0;
-            cur_node = cur_node->m_next;
+            cur_node->m_pointed_obj = NULL;
+            cur_node = (csr_c*)cur_node->m_next;
         }
 
         return;
@@ -35,14 +35,14 @@ void dCsr_mng_c::update_(void) {
     int x = pos->x;
     int y = pos->y;
 
-    node_c* cur_node = m_csr_list.m_root;
+    csr_c* cur_node = (csr_c*)m_csr_list.m_root;
     mDoGph_gInf_c::csr_c* csr = NULL;
     u16 last_mask = 1;
     while (cur_node != NULL) {
         cur_node->m_pointed_obj = NULL;
 
         u16 cur_mask = cur_node->m_mask;
-        if (!g_dComIfG_gameInfo.play.mItemInfo.mPauseFlag || (cur_node->m_mask & 0x200) == 0) {
+        if (!g_dComIfG_gameInfo.play.mItemInfo.mPauseFlag || (cur_mask & 0x200) == 0) {
             if (csr == NULL) {
                 csr = cur_node->m_csr;
             }
@@ -64,7 +64,7 @@ void dCsr_mng_c::update_(void) {
             }
         }
 
-        cur_node = cur_node->m_next;
+        cur_node = (csr_c*)cur_node->m_next;
     }
 
     if (!dComIfGs_getOptPointer()) {
@@ -90,12 +90,12 @@ void dCsr_mng_c::releaseCsr_(csr_c* i_csr) {
 }
 
 void dCsr_mng_c::insideObjReleaseCheck_(void) {
-    node_c* cur_node = m_csr_list.m_root;
+    csr_c* cur_node = (csr_c*)m_csr_list.m_root;
     while (cur_node != NULL) {
         if (!m_obj_list.isEntry(cur_node->m_pointed_obj)) {
             cur_node->m_pointed_obj = NULL;
         }
-        cur_node = cur_node->m_next;
+        cur_node = (csr_c*)cur_node->m_next;
     }
 }
 
@@ -380,7 +380,7 @@ BOOL dCsr_mng_c::csr_c::set(mDoGph_gInf_c::csr_c* i_csr, u16 param_1, u8 param_2
     if (!node_c::set(param_2, param_3, param_1)) {
         return FALSE;
     }
-    m_csr = i_csr;
+    m_csr = (csr_c*)i_csr;
     return TRUE;
 }
 

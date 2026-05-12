@@ -121,6 +121,9 @@ private:
     /* 0x148 */ f32 field_0x148[2];
     /* 0x150 */ f32 field_0x150[2];
     /* 0x158 */ f32 field_0x158;
+#if PLATFORM_WII
+    /* WII 0x15C */ u8 field_0x15c_wii[0x168 - 0x15c];
+#endif
     /* 0x15C */ f32 field_0x15c;
     /* 0x160 */ f32 field_0x160[4];
     /* 0x170 */ u8 field_0x170[4];

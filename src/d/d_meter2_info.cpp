@@ -15,6 +15,12 @@
 
 #include <cstring>
 
+#if PLATFORM_WII
+#define MINIGAME_ITEM_COUNT 4
+#else
+#define MINIGAME_ITEM_COUNT 2
+#endif
+
 enum ITEMICON_RES_FILE_ID {
     ITEMICON_BTI_ARI_MESU_00=0x3,
     ITEMICON_BTI_ARI_OSU_00=0x4,
@@ -173,6 +179,8 @@ enum dMeter2_ItemType {
     ItemType_HAWK_ARROW,
 };
 
+dMeter2Info_c g_meter2_info;
+
 dMeter2Info_c::dMeter2Info_c() {
     init();
     mTempBits = 0;
@@ -236,7 +244,7 @@ void dMeter2Info_c::init() {
     mFloatingFlowID = 0xFFFF;
     mFloatingMessageID = 0xFFFF;
     mFloatingMessageTimer = 0;
-    mFloatingMessageWakuVisible = 0;
+    mFloatingMessageWakuVisible = false;
 
     resetWarpStatus();
     resetPauseStatus();
@@ -363,6 +371,10 @@ void dMeter2Info_c::getString(u32 i_stringID, char* o_string, JMSMesgEntry_c* i_
         msgRes = (u8*)mMsgResource;
     }
 
+#if PLATFORM_WII
+    getRevoMessage(i_stringID, (void*)msgRes);
+#endif
+
     JMSMesgInfo_c* bmg_inf = (JMSMesgInfo_c*)(msgRes + sizeof(bmg_header_t));
     u8* bmg_data = (u8*)bmg_inf + bmg_inf->header.size;
     u8* string_data = bmg_data + sizeof(bmg_section_t);  // pointer to start of message data
@@ -400,6 +412,10 @@ void dMeter2Info_c::getStringKana(u32 i_stringID, char* o_string, JMSMesgEntry_c
         msgRes = (u8*)mMsgResource;
     }
 
+#if PLATFORM_WII
+    getRevoMessage(i_stringID, msgRes);
+#endif
+
     JMSMesgInfo_c* bmg_inf = (JMSMesgInfo_c*)(msgRes + sizeof(bmg_header_t));
     u8* bmg_data = (u8*)bmg_inf + bmg_inf->header.size;
     u8* string_data = bmg_data + sizeof(bmg_section_t);
@@ -408,7 +424,8 @@ void dMeter2Info_c::getStringKana(u32 i_stringID, char* o_string, JMSMesgEntry_c
     for (u16 i = 0; i < bmg_inf->entry_num; i++) {
         // check if i_stringID equals the message entry "Message ID"
         if (i_stringID == bmg_inf->entries[i].message_id) {
-            string_ptr = (char*)(string_data + bmg_inf->entries[i].string_offset);  // use entry "String Offset" to get string pointer
+            // use entry "String Offset" to get string pointer
+            string_ptr = (char*)(string_data + bmg_inf->entries[i].string_offset);
 
             int var_r29 = 0;
             int sp14 = 0;
@@ -469,6 +486,10 @@ void dMeter2Info_c::getStringKanji(u32 i_stringID, char* o_string, JMSMesgEntry_
         msgRes = (u8*)mMsgResource;
     }
 
+#if PLATFORM_WII
+    getRevoMessage(i_stringID, msgRes);
+#endif
+
     JMSMesgInfo_c* bmg_inf = (JMSMesgInfo_c*)(msgRes + sizeof(bmg_header_t));
     u8* bmg_data = (u8*)bmg_inf + bmg_inf->header.size;
     u8* string_data = bmg_data + sizeof(bmg_section_t);
@@ -510,6 +531,7 @@ void dMeter2Info_c::getStringKanji(u32 i_stringID, char* o_string, JMSMesgEntry_
 }
 
 static void dummyString() {
+    // "ID for Revo =====>%d, %d"
     OS_REPORT("レボ用ＩＤ＝＝＝＝＝＞%d, %d\n");
 }
 
@@ -552,6 +574,12 @@ f32 dMeter2Info_c::getStringLength(J2DTextBox* i_textbox, char* i_string) {
     return str_len;
 }
 
+#if PLATFORM_WII
+//void dMeter2Info_c::getRevoMessage(u32 param_0, void* param_1) {
+//    //
+//}
+#endif
+
 f32 dMeter2Info_c::getStringLength(JUTFont* i_font, f32 param_2, f32 param_3, char* i_string) {
     f32 str_width = 0.0f;
     f32 str_len = 0.0f;
@@ -591,8 +619,6 @@ void dMeter2Info_c::onDirectUseItem(int param_0) {
 BOOL dMeter2Info_c::isDirectUseItem(int param_0) {
     return (mDirectUseItem & (u8)(1 << param_0)) ? TRUE : FALSE;
 }
-
-dMeter2Info_c g_meter2_info;
 
 int dMeter2Info_c::setMeterString(s32 i_string) {
     if (mMeterString != 0) {
@@ -1009,7 +1035,7 @@ s16 dMeter2Info_c::get4thTexture(u8 i_itemType) {
 
 void dMeter2Info_c::set1stColor(u8 i_itemType, J2DPicture* i_pic) {
     // TODO: probably some way to rectify this for both versions
-    #if VERSION == VERSION_SHIELD_DEBUG
+    #if PLATFORM_WII || PLATFORM_SHIELD
     static JUtility::TColor const black_color[37] = {
         JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x60, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0xC0, 0x00),
         JUtility::TColor(0xA0, 0x60, 0x00, 0x00), JUtility::TColor(0xA0, 0x00, 0x00, 0x00), JUtility::TColor(0x40, 0x00, 0x60, 0x00),
@@ -1213,7 +1239,7 @@ void dMeter2Info_c::set1stColor(u8 i_itemType, J2DPicture* i_pic) {
 
 void dMeter2Info_c::set2ndColor(u8 i_itemType, J2DPicture* i_pic) {
     // TODO: probably some way to rectify this for both versions
-    #if VERSION == VERSION_SHIELD_DEBUG
+    #if PLATFORM_WII || PLATFORM_SHIELD
     static JUtility::TColor const black_color[37] = {
         JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0x00, 0x00),
         JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0x00, 0x00),
@@ -1504,7 +1530,7 @@ void dMeter2Info_c::setMiniGameItem(u8 i_minigameFlag) {
 
     mMiniGameItemSetFlag = i_minigameFlag;
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < MINIGAME_ITEM_COUNT; i++) {
         mSaveMixItemIdx[i] = dComIfGs_getMixItemIndex(i);
         mSaveSelItemIdx[i] = dComIfGs_getSelectItemIndex(i);
     }
@@ -1515,7 +1541,7 @@ void dMeter2Info_c::setMiniGameItem(u8 i_minigameFlag) {
     mSaveBombItem = dComIfGs_getItem((u8)(mRentalBombBagIdx + SLOT_15), false);
 
     if (item_set) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < MINIGAME_ITEM_COUNT; i++) {
             dComIfGs_setMixItemIndex(i, mSaveMixItemIdxMG[i]);
             dComIfGs_setSelectItemIndex(i, mSaveSelItemIdxMG[i]);
         }
@@ -1533,10 +1559,19 @@ void dMeter2Info_c::setMiniGameItem(u8 i_minigameFlag) {
     if (mMiniGameItemSetFlag != 3) {
         dComIfGs_setItem(SLOT_4, dItemNo_BOW_e);
         dComIfGp_setItem(SLOT_4, dItemNo_BOW_e);
+#if PLATFORM_WII
+        for (int i = 0; i < 3; i++) {
+            dComIfGs_setMixItemIndex((u8)i, 0xFF);
+            dComIfGs_setSelectItemIndex((u8)i, 0xFF);
+        }
+        dComIfGs_setMixItemIndex(SELECT_ITEM_B, SLOT_4);
+        dComIfGs_setSelectItemIndex(SELECT_ITEM_B, (u8)(mRentalBombBagIdx + SLOT_15));
+#else
         dComIfGs_setMixItemIndex(SELECT_ITEM_Y, 0xFF);
         dComIfGs_setSelectItemIndex(SELECT_ITEM_Y, 0xFF);
         dComIfGs_setMixItemIndex(SELECT_ITEM_X, SLOT_4);
         dComIfGs_setSelectItemIndex(SELECT_ITEM_X, (u8)(mRentalBombBagIdx + SLOT_15));
+#endif
     }
 
     if (!item_set) {
@@ -1548,7 +1583,7 @@ void dMeter2Info_c::setMiniGameItem(u8 i_minigameFlag) {
 void dMeter2Info_c::resetMiniGameItem(bool i_saveItem) {
     if (mMiniGameItemSetFlag != 0) {
         if (i_saveItem) {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < MINIGAME_ITEM_COUNT; i++) {
                 mSaveMixItemIdxMG[i] = dComIfGs_getMixItemIndex(i);
                 mSaveSelItemIdxMG[i] = dComIfGs_getSelectItemIndex(i);
             }
@@ -1559,7 +1594,7 @@ void dMeter2Info_c::resetMiniGameItem(bool i_saveItem) {
             mSaveBombItemMG = dComIfGs_getItem((u8)(mRentalBombBagIdx + SLOT_15), false);
         }
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < MINIGAME_ITEM_COUNT; i++) {
             dComIfGs_setMixItemIndex(i, mSaveMixItemIdx[i]);
             dComIfGs_setSelectItemIndex(i, mSaveSelItemIdx[i]);
         }
@@ -1856,7 +1891,9 @@ int dMeter2Info_recieveLetter() {
 #if WIDESCREEN_SUPPORT
 f32 dMeter2Info_getWide2DPosX(f32* param_0) {
     J2DOrthoGraph graf(0.0f, 0.0f, 640.0f, 456.0f, -1.0f, 1.0f);
-    graf.setOrtho(mDoGph_gInf_c::getMinXF(), mDoGph_gInf_c::getMinYF(), mDoGph_gInf_c::getWidthF(), mDoGph_gInf_c::getHeightF(), -1.0f, 1.0f);
+    graf.setOrtho(mDoGph_gInf_c::getMinXF(), mDoGph_gInf_c::getMinYF(),
+                  mDoGph_gInf_c::getWidthF(), mDoGph_gInf_c::getHeightF(),
+                  -1.0f, 1.0f);
     JGeometry::TBox2<f32>* bounds = graf.getBounds();
     const JGeometry::TBox2<f32>* ortho = graf.getOrtho();
 

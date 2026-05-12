@@ -153,6 +153,7 @@ static const float INF = 2000000000.0f;
     #define MULTI_CHAR(x) (x)
 #else
 #if __cplusplus
+#if __cplusplus >= 201103L
     template <int N>
     inline constexpr unsigned long long MultiCharLiteral(const char (&buf)[N]) {
         static_assert(N - 1 >= 3 && N - 1 <= 10, "MULTI_CHAR literal must be 1-8 characters");
@@ -162,6 +163,16 @@ static const float INF = 2000000000.0f;
         }
         return out;
     }
+#else
+    template <int N>
+    inline unsigned long long MultiCharLiteral(const char (&buf)[N]) {
+        unsigned long long out = 0;
+        for (int i = 1; i < N - 2; i++) {
+            out = (out << 8) | static_cast<unsigned char>(buf[i]);
+        }
+        return out;
+    }
+#endif
     #define MULTI_CHAR(x) MultiCharLiteral(#x)
 #endif
 #endif

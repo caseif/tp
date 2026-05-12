@@ -46,7 +46,7 @@ J2DPicture::J2DPicture(J2DPane* p_pane, JSURandomInputStream* p_stream, J2DMater
 
     for (int i = 0; i < 4; i++) {
         field_0x10a[i] = picInfo.field_0x10[i];
-        mCornerColor[i] = picInfo.mCornerColor[i];
+        mCornerColor.mColors[i] = picInfo.mCornerColor[i];
     }
 
     p_stream->seek(position + header.mSize, JSUStreamSeekFrom_SET);
@@ -61,8 +61,8 @@ J2DPicture::J2DPicture(J2DPane* p_pane, JSURandomInputStream* p_stream, J2DMater
         mAlpha = material->getColorBlock()->getMatColor(0)->a;
     }
 
-    mBlack = JUtility::TColor(0);
-    mWhite = JUtility::TColor(0xFFFFFFFF);
+    mBlack = JUtility::TColor((u32)0x00000000);
+    mWhite = JUtility::TColor((u32)0xFFFFFFFF);
     mTextureNum = 0;
 
     if (material != NULL && material->getTevBlock() != NULL) {
@@ -178,8 +178,8 @@ void J2DPicture::private_readStream(J2DPane* parent, JSURandomInputStream* strea
         r29--;
     }
 
-    mBlack = 0;
-    mWhite = 0xFFFFFFFF;
+    mBlack = JUtility::TColor((u32)0x00000000);
+    mWhite = JUtility::TColor((u32)0xFFFFFFFF);
 
     if (r29 != 0) {
         mBlack = stream->readU32();
@@ -193,7 +193,7 @@ void J2DPicture::private_readStream(J2DPane* parent, JSURandomInputStream* strea
 
     setCornerColor(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
     for (int i = 0; r29 != 0 && i < 4; i++) {
-        mCornerColor[i] = stream->readU32();
+        mCornerColor.mColors[i] = stream->readU32();
         r29--;
     }
 
@@ -262,8 +262,8 @@ void J2DPicture::initinfo() {
     setTexCoord(NULL, BIND15, MIRROR0, false);
     setBlendRatio(1.0f, 1.0f);
 
-    mBlack = 0;
-    mWhite = -1;
+    mBlack = JUtility::TColor((u32)0x00000000);
+    mWhite = JUtility::TColor((u32)0xFFFFFFFF);
     setCornerColor(-1, -1, -1, -1);
 }
 
@@ -752,8 +752,8 @@ void J2DPicture::setTevMode() {
         i++;
     }
 
-    if (mColorAlpha != 0xFF || mCornerColor[0] != 0xFFFFFFFF || mCornerColor[1] != 0xFFFFFFFF ||
-        mCornerColor[2] != 0xFFFFFFFF || mCornerColor[3] != 0xFFFFFFFF)
+    if (mColorAlpha != 0xFF || mCornerColor.mColors[0] != 0xFFFFFFFF || mCornerColor.mColors[1] != 0xFFFFFFFF ||
+        mCornerColor.mColors[2] != 0xFFFFFFFF || mCornerColor.mColors[3] != 0xFFFFFFFF)
     {
         GXSetTevOrder(GXTevStageID(i), GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
         GXSetTevColorIn(GXTevStageID(i), GX_CC_ZERO, GX_CC_CPREV, GX_CC_RASC, GX_CC_ZERO);
@@ -863,10 +863,10 @@ void J2DPicture::setBlendKonstAlpha() {
 }
 
 void J2DPicture::getNewColor(JUtility::TColor* param_0) {
-    param_0[0] = mCornerColor[0];
-    param_0[1] = mCornerColor[1];
-    param_0[2] = mCornerColor[2];
-    param_0[3] = mCornerColor[3];
+    param_0[0] = mCornerColor.mColors[0];
+    param_0[1] = mCornerColor.mColors[1];
+    param_0[2] = mCornerColor.mColors[2];
+    param_0[3] = mCornerColor.mColors[3];
 
     if (mColorAlpha != 0xFF) {
         param_0[0].a = (param_0[0].a * mColorAlpha) / 0xFF;

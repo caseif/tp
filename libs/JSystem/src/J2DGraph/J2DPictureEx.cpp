@@ -37,7 +37,7 @@ J2DPictureEx::J2DPictureEx(J2DPane* param_0, JSURandomInputStream* param_1, u32 
     for (int i = 0; i < 4; i++) {
         field_0x158[i] = aJStack_60.field_0x8[i];
         field_0x10a[i] = aJStack_60.field_0x10[i];
-        mCornerColor[i] = JUtility::TColor(aJStack_60.mCornerColor[i]);
+        mCornerColor.mColors[i] = JUtility::TColor(aJStack_60.mCornerColor[i]);
     }
 
     param_1->seek(origPosition + local_68[1], JSUStreamSeekFrom_SET);
@@ -106,10 +106,10 @@ void J2DPictureEx::drawTexCoord(f32 param_0, f32 param_1, f32 param_2, f32 param
         return;
     }
     GXLoadPosMtxImm(auStack_88, 0);
-    JUtility::TColor TStack_8c = mCornerColor[0];
-    JUtility::TColor TStack_90 = mCornerColor[1];
-    JUtility::TColor TStack_94 = mCornerColor[2];
-    JUtility::TColor TStack_98 = mCornerColor[3];
+    JUtility::TColor TStack_8c = mCornerColor.mColors[0];
+    JUtility::TColor TStack_90 = mCornerColor.mColors[1];
+    JUtility::TColor TStack_94 = mCornerColor.mColors[2];
+    JUtility::TColor TStack_98 = mCornerColor.mColors[3];
     if (mMaterial != NULL) {
         if (mMaterial->getColorBlock()->getColorChan(1)->getMatSrc() == 1) {
             if (mMaterial->getMaterialAlphaCalc() == 1) {
@@ -414,7 +414,7 @@ void J2DPictureEx::draw(f32 param_0, f32 param_1, f32 width, f32 height, bool pa
     
     JUtility::TColor corner_color[4];
     for (int i = 0; i < 4; i++) {
-        corner_color[i] = mCornerColor[i];
+        corner_color[i] = mCornerColor.mColors[i];
     }
 
     if (mMaterial->getMaterialAlphaCalc() == 1) {
@@ -528,7 +528,7 @@ void J2DPictureEx::drawOut(JGeometry::TBox2<f32> const& param_0,
     mColorAlpha = mAlpha;
     JUtility::TColor corner_color[4];
     for (int i = 0; i < 4; i++) {
-        corner_color[i] = mCornerColor[i];
+        corner_color[i] = mCornerColor.mColors[i];
     }
     if (mMaterial->getMaterialAlphaCalc() == 1) {
         for (int i = 0; i < 4; i++) {
@@ -1004,8 +1004,8 @@ bool J2DPictureEx::getBlackWhite(JUtility::TColor* black, JUtility::TColor* whit
         bVar1 = tev_stage_num == tex_gen_num + 1 ? false : true;
     }
 
-    *black = 0x00000000;
-    *white = 0xffffffff;
+    *black = (u32)0x00000000;
+    *white = (u32)0xffffffff;
 
     if (bVar1) {
         // possible fakematch?
@@ -1048,7 +1048,7 @@ bool J2DPictureEx::isSetBlackWhite(JUtility::TColor black, JUtility::TColor whit
 JUtility::TColor J2DPictureEx::getBlack() const {
     JUtility::TColor black, white;
     if (!getBlackWhite(&black, &white)) {
-        return 0x00000000;
+        return JUtility::TColor((u32)0x00000000);
     } else {
         return black;
     }
@@ -1179,7 +1179,7 @@ const J2DAnmTransform* J2DPictureEx::animationPane(J2DAnmTransform const* anm) {
                     u16* index = field_0x198->getVtxColorIndexPointer(0) + (uintptr_t)data->mpData;
                     for (u16 k = 0; k < data->mNum; k++) {
                         if (index[k] == field_0x158[i]) {
-                            field_0x198->getColor(0, j, &mCornerColor[i]);
+                            field_0x198->getColor(0, j, &mCornerColor.mColors[i]);
                             goto next;
                         }
                     }

@@ -55,6 +55,27 @@ struct J2DScrnBlockPictureParameter {
  */
 class J2DPicture : public J2DPane {
 public:
+    struct TCornerColor {
+        JUtility::TColor mColors[4];
+
+        TCornerColor() {}
+
+        /*TCornerColor(const TCornerColor& other) {
+            *(u32*)&corner_1 = *(u32*)&other.corner_1;
+            *(u32*)&corner_2 = *(u32*)&other.corner_2;
+            *(u32*)&corner_3 = *(u32*)&other.corner_3;
+            *(u32*)&corner_4 = *(u32*)&other.corner_4;
+        }*/
+
+        /*TCornerColor& operator=(TCornerColor& other) {
+            mColors[0] = other.mColors[0];
+            mColors[1] = other.mColors[1];
+            mColors[2] = other.mColors[2];
+            mColors[3] = other.mColors[3];
+            return *this;
+        }*/
+    };
+
     virtual ~J2DPicture();
     virtual u16 getTypeID() const { return 18; }
     virtual void drawSelf(f32, f32);
@@ -201,15 +222,27 @@ public:
     void setTexCoord(JUTTexture const*, J2DBinding, J2DMirror, bool);
     GXTlut getTlutID(ResTIMG const*, u8);
 
+    void getCornerColor(TCornerColor& o_corner_color) {
+        o_corner_color = mCornerColor;
+    }
+
     void setCornerColor(JUtility::TColor c0, JUtility::TColor c1, JUtility::TColor c2,
                         JUtility::TColor c3) {
-        mCornerColor[0] = c0;
-        mCornerColor[1] = c1;
-        mCornerColor[2] = c2;
-        mCornerColor[3] = c3;
+        mCornerColor.mColors[0] = c0;
+        mCornerColor.mColors[1] = c1;
+        mCornerColor.mColors[2] = c2;
+        mCornerColor.mColors[3] = c3;
     }
-    void setCornerColor(JUtility::TColor c0) {
-        setCornerColor(c0, c0, c0, c0);
+
+    void setCornerColor(JUtility::TColor i_color) {
+        setCornerColor(i_color, i_color, i_color, i_color);
+    }
+
+    void setCornerColor(TCornerColor i_colors) {
+        mCornerColor.mColors[0].set(i_colors.mColors[0]);
+        mCornerColor.mColors[1].set(i_colors.mColors[1]);
+        mCornerColor.mColors[2].set(i_colors.mColors[2]);
+        mCornerColor.mColors[3].set(i_colors.mColors[3]);
     }
 
 protected:
@@ -222,7 +255,7 @@ protected:
     /* 0x12C */ JUTPalette* mPalette;
     /* 0x130 */ JUtility::TColor mWhite;
     /* 0x134 */ JUtility::TColor mBlack;
-    /* 0x138 */ JUtility::TColor mCornerColor[4];
+    /* 0x138 */ TCornerColor mCornerColor;
     /* 0x148 */ JUtility::TColor mBlendKonstColor;
     /* 0x14C */ JUtility::TColor mBlendKonstAlpha;
 };

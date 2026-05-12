@@ -4,7 +4,7 @@
 #include <gx.h>
 
 namespace JUtility {
-    
+
 /**
 * @ingroup jsystem-jutility
 *
@@ -15,10 +15,14 @@ struct TColor : public GXColor {
     TColor(u32 u32Color) { set(u32Color); }
     TColor(GXColor color) { set(color); }
 
-    // TColor(const TColor& other) { set(other.toUInt32()); }
+    TColor& operator=(const TColor& other) {
+        GXColor* temp = this;
+        *temp = other;
+        return *this;
+    }
 
     operator u32() const { return toUInt32(); }
-    u32 toUInt32() const { return *(u32*)&r; }
+    u32 toUInt32() const { return *(u32*)this; }
 
     void set(u8 cR, u8 cG, u8 cB, u8 cA) {
         r = cR;

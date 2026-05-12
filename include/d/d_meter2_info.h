@@ -71,6 +71,7 @@ public:
     void getStringKana(u32 i_stringID, char* o_string, JMSMesgEntry_c* i_msgEntry);
     void getStringKanji(u32 i_stringID, char* o_string, JMSMesgEntry_c* i_msgEntry);
     f32 getStringLength(J2DTextBox* i_textbox, char* i_string);
+    void getRevoMessage(u32 param_0, void* param_1);
     f32 getStringLength(JUTFont* i_font, f32 param_2, f32 param_3, char* i_string);
     void onDirectUseItem(int);
     BOOL isDirectUseItem(int);
@@ -126,7 +127,9 @@ public:
     void setNowCount(u8 i_count) { mNowCount = i_count; }
     void setMaxCount(u8 i_count) { mMaxCount = i_count; }
     void allUseButton() { mUseButton = 0xFFFF; }
-    bool isUseButton(int i_buttonBit) { return i_buttonBit & mUseButton; }
+    bool isUseButton(int i_buttonBit) {
+        return mUseButton & (u16)i_buttonBit ? true : false;
+    }
     void setMeterMapClass(dMeterMap_c* i_map) { mMeterMap = i_map; }
     void resetGameStatus() { mGameStatus = 0; }
     void onGameStatus(int i_status) { mGameStatus |= (u16)i_status; }
@@ -324,6 +327,7 @@ s16 dMeter2Info_getNowLifeGauge();
 bool dMeter2Info_isNextStage(const char*, s16, s16, s16);
 
 #if WIDESCREEN_SUPPORT
+f32 dMeter2Info_getWide2DPosX(f32*);
 void dMeter2Info_onWide2D();
 void dMeter2Info_offWide2D();
 #endif

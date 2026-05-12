@@ -25,7 +25,12 @@ typedef struct _GXRenderModeObj {
 } GXRenderModeObj;
 
 typedef struct _GXColor {
-    u8 r, g, b, a;
+    union {
+        struct {
+            u8 r, g, b, a;
+        };
+        u32 rgba;
+    };
 } GXColor;
 
 typedef struct _GXColorS10 {
